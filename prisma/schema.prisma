@@ -239,3 +239,10 @@ model AdminActivityLog {
 
   admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
 }
+
+/// 요청 횟수 제한 (로그인·채팅). 서버리스 다중 인스턴스에서도 공유되도록 DB에 둔다.
+model RateLimit {
+  key     String @id
+  count   Int
+  resetAt BigInt // epoch ms
+}

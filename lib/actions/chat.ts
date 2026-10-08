@@ -1,6 +1,5 @@
 "use server";
 
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/database/db";
 import { rateLimit } from "@/lib/auth/rate-limit";
@@ -20,10 +19,6 @@ export type SendResult =
     }
   | { ok: false; error: string };
 
-function ip(): string {
-  return headers().get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
-}
-
 /** 민감정보 패턴 자동 마스킹 (저장 전) */
 function maskSensitive(text: string): string {
   return text
@@ -40,7 +35,7 @@ export async function sendChatMessage(input: {
   const userId = await getActiveUserId();
   if (!userId) return { ok: false, error: "로그인이 필요합니다." };
 
-  const rl = rateLimit(`chat:${userId}`, 30, 60 * 1000);
+  const rl = await rateLimit(`chat:${userId}`, 30, 60 * 1000);
   if (!rl.ok)
     return { ok: false, error: "질문이 너무 많습니다. 잠시 후 다시 시도해 주세요." };
 

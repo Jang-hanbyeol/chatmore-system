@@ -106,3 +106,8 @@ export type Admin = Prisma.AdminModel
  * 
  */
 export type AdminActivityLog = Prisma.AdminActivityLogModel
+/**
+ * Model RateLimit
+ * 요청 횟수 제한 (로그인·채팅). 서버리스 다중 인스턴스에서도 공유되도록 DB에 둔다.
+ */
+export type RateLimit = Prisma.RateLimitModel

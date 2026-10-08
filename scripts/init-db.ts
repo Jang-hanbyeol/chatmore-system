@@ -185,6 +185,11 @@ const S = [
   "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT "AdminActivityLog_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "Admin"("id") ON DELETE CASCADE ON UPDATE CASCADE
 )`,
+  `CREATE TABLE IF NOT EXISTS "RateLimit" (
+  "key" TEXT NOT NULL PRIMARY KEY,
+  "count" INTEGER NOT NULL,
+  "resetAt" BIGINT NOT NULL
+)`,
 ];
 
 async function main() {

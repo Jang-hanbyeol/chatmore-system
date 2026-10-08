@@ -23,11 +23,28 @@ describe("세션 토큰", () => {
   });
 });
 
-describe("Rate Limiter", () => {
+describe("Rate Limiter (DB 기반)", () => {
   it("허용 횟수 초과 시 차단한다", async () => {
     const { rateLimit } = await import("@/lib/auth/rate-limit");
     const key = `t-${Math.random()}`;
-    for (let i = 0; i < 3; i++) expect(rateLimit(key, 3, 60000).ok).toBe(true);
-    expect(rateLimit(key, 3, 60000).ok).toBe(false);
+    for (let i = 0; i < 3; i++) expect((await rateLimit(key, 3, 60000)).ok).toBe(true);
+    expect((await rateLimit(key, 3, 60000)).ok).toBe(false);
+  });
+
+  it("동시 요청도 정확히 센다 (인스턴스 간 공유 저장소 가정)", async () => {
+    const { rateLimit } = await import("@/lib/auth/rate-limit");
+    const key = `c-${Math.random()}`;
+    const results = await Promise.all(
+      Array.from({ length: 8 }, () => rateLimit(key, 5, 60000))
+    );
+    expect(results.filter((r) => r.ok)).toHaveLength(5);
+  });
+
+  it("윈도우가 지나면 다시 허용한다", async () => {
+    const { rateLimit } = await import("@/lib/auth/rate-limit");
+    const key = `w-${Math.random()}`;
+    expect((await rateLimit(key, 1, 1)).ok).toBe(true);
+    await new Promise((r) => setTimeout(r, 5));
+    expect((await rateLimit(key, 1, 1)).ok).toBe(true);
   });
 });

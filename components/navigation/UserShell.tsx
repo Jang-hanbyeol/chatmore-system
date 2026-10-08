@@ -120,7 +120,8 @@ export function UserShell({
       />
 
       {/* 데스크톱 사이드바 */}
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-hairline bg-surface lg:flex">
+      {/* 화면 높이로 고정: 본문이 길어도 사이드바(하단 프로필 포함)는 제자리, 본문만 스크롤 */}
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col self-start border-r border-hairline bg-surface lg:flex">
         <div className="flex h-16 items-center border-b border-hairline-soft px-5">
           <Link href="/home" aria-label="Chatmore 홈">
             <Logo variant="horizontal" height={26} priority />

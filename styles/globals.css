@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Pretendard (자체 호스팅, 가변 폰트) */
+@font-face {
+  font-family: "Pretendard";
+  src: url("/fonts/PretendardVariable.woff2") format("woff2-variations");
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Chatmore System 디자인 토큰 (DESIGNcoinbase.md 재해석)
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --color-primary: #0052ff;
+  --color-primary-active: #003ecc;
+  --color-primary-disabled: #a8b8cc;
+  --color-secondary: #16181c;
+  --color-accent: #0052ff;
+  --color-background: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f7f7f7;
+  --color-surface-strong: #eef0f3;
+  --color-surface-dark: #0a0b0d;
+  --color-surface-dark-elevated: #16181c;
+  --color-ink: #0a0b0d;
+  --color-text-primary: #0a0b0d;
+  --color-text-secondary: #5b616e;
+  --color-muted: #7c828a;
+  --color-muted-soft: #a8acb3;
+  --color-on-dark-soft: #a8acb3;
+  --color-border: #dee1e6;
+  --color-border-soft: #eef0f3;
+  --color-success: #05b169;
+  --color-warning: #b47800;
+  --color-error: #cf202f;
+  --color-info: #0052ff;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-canvas text-ink font-sans antialiased;
+  word-break: keep-all;
+}
+
+/* 접근성 설정: 글자 크기 / 고대비 */
+html[data-font-size="large"] {
+  font-size: 18px;
+}
+html[data-font-size="xlarge"] {
+  font-size: 20px;
+}
+html[data-contrast="high"] {
+  --color-text-secondary: #3a3f47;
+  --color-muted: #4c525a;
+  --color-border: #b9bec6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.skip-nav {
+  @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-5 focus:py-3 focus:text-white;
+}
+
+/* 공지/본문 렌더링 */
+.prose-basic h2 {
+  @apply mt-6 mb-2 text-lg font-semibold text-ink;
+}
+.prose-basic h3 {
+  @apply mt-5 mb-2 text-base font-semibold text-ink;
+}
+.prose-basic p {
+  @apply my-2.5 leading-relaxed text-body;
+}
+.prose-basic ul {
+  @apply my-2.5 list-disc pl-6 text-body;
+}
+.prose-basic li {
+  @apply my-1;
+}
+.prose-basic a {
+  @apply text-primary underline underline-offset-2;
+}
+
+/* 스크롤바 (데스크톱 목록) */
+.thin-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}

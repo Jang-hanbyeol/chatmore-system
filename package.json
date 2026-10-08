@@ -1,0 +1,46 @@
+{
+  "name": "chatmore-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chatmore — AI 기반 순천대학교 학생 맞춤형 생활정보 챗봇 시스템 UI",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "vercel-build": "npm run db:init-offline && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:setup": "prisma generate && prisma db push && tsx prisma/seed.ts",
+    "db:init-offline": "prisma generate && tsx scripts/init-db.ts && tsx prisma/seed.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.15.15",
+    "@prisma/adapter-libsql": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^17.4.2",
+    "lucide-react": "^0.454.0",
+    "next": "^14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "playwright": "^1.49.0",
+    "postcss": "^8.4.38",
+    "prisma": "^7.9.1",
+    "tailwindcss": "^3.4.4",
+    "tsx": "^4.23.8",
+    "typescript": "^5.5.2",
+    "vitest": "^2.1.9"
+  }
+}

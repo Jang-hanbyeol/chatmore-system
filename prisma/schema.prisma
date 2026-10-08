@@ -1,0 +1,241 @@
+// Chatmore System 데이터베이스 스키마 (경량 데모 구성: Prisma 7 + SQLite/libSQL)
+// Supabase(PostgreSQL) 전환 시 provider 만 "postgresql" 로 바꾸고
+// 어댑터를 @prisma/adapter-pg 로 교체하면 대부분 그대로 사용할 수 있습니다.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/* ───────── 사용자 ───────── */
+
+model User {
+  id                   String   @id @default(cuid())
+  email                String   @unique
+  passwordHash         String
+  name                 String
+  userType             String   @default("재학생") // 재학생|신입생|대학원생|복학생|외국인 유학생|교직원|기타
+  college              String?
+  department           String?
+  grade                String?
+  admissionYear        String?
+  language             String   @default("ko")
+  interests            String   @default("") // 쉼표 구분
+  notifySchedule       Boolean  @default(true)
+  notifyScholarship    Boolean  @default(true)
+  notifyProgram        Boolean  @default(true)
+  notifyBookmark       Boolean  @default(true)
+  notifyRecommend      Boolean  @default(false)
+  answerLength         String   @default("detailed") // simple | detailed
+  autoExpandSources    Boolean  @default(false)
+  showSuggestions      Boolean  @default(true)
+  saveHistory          Boolean  @default(true)
+  allowPersonalization Boolean  @default(true)
+  fontSize             String   @default("default") // default | large | xlarge
+  highContrast         Boolean  @default(false)
+  reduceMotion         Boolean  @default(false)
+  onboarded            Boolean  @default(false)
+  status               String   @default("active") // active|inactive|suspended|deleted
+  isDemo               Boolean  @default(false)
+  lastActiveAt         DateTime @default(now())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  conversations Conversation[]
+  feedbacks     Feedback[]
+  reports       Report[]
+  bookmarks     Bookmark[]
+  notifications Notification[]
+}
+
+/* ───────── 대화 ───────── */
+
+model Conversation {
+  id           String    @id @default(cuid())
+  userId       String
+  title        String    @default("새 대화")
+  category     String?
+  isBookmarked Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages     Message[]
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String // user | assistant
+  content        String
+  status         String   @default("success") // success|partial|no_result|error
+  summary        String?
+  sourcesJson    String? // SourceItem[] (JSON)
+  noticesJson    String? // RelatedNotice[] (JSON)
+  followUpsJson  String? // string[] (JSON)
+  modelName      String?
+  dataCheckedAt  String?
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  feedbacks    Feedback[]
+}
+
+/* ───────── 대학 정보 데이터 (RAG 소스) ───────── */
+
+model InformationSource {
+  id             String    @id @default(cuid())
+  title          String
+  category       String
+  summary        String
+  content        String
+  department     String
+  targetUsers    String    @default("전체")
+  keywords       String    @default("")
+  sourceUrl      String?
+  attachmentUrl  String?
+  startAt        DateTime?
+  endAt          DateTime?
+  publishedAt    DateTime  @default(now())
+  dataCheckedAt  DateTime  @default(now())
+  dataStatus     String    @default("active") // draft|active|needs_review|outdated|archived|sync_failed
+  isAiSearchable Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+/* ───────── 공지 ───────── */
+
+model Notice {
+  id          String    @id @default(cuid())
+  title       String
+  category    String    @default("공지")
+  summary     String
+  content     String
+  department  String
+  targetUsers String    @default("전체")
+  startAt     DateTime?
+  endAt       DateTime?
+  sourceUrl   String?
+  status      String    @default("published") // draft|published|archived
+  isPinned    Boolean   @default(false)
+  viewCount   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+/* ───────── 일정 ───────── */
+
+model ScheduleEvent {
+  id         String   @id @default(cuid())
+  title      String
+  category   String   @default("학사") // 학사|장학금|비교과|행사|등록|기타|개인
+  startAt    DateTime
+  endAt      DateTime?
+  department String?
+  sourceUrl  String?
+  isDeadline Boolean  @default(false)
+  userId     String? // null = 전체 공개 일정, 값 있음 = 개인 일정
+  createdAt  DateTime @default(now())
+}
+
+/* ───────── 피드백 / 신고 ───────── */
+
+model Feedback {
+  id           String   @id @default(cuid())
+  userId       String
+  messageId    String
+  feedbackType String // helpful | not_helpful
+  reason       String?
+  comment      String?
+  status       String   @default("new") // new|reviewing|resolved|data_updated|model_review_required|closed
+  adminMemo    String?
+  assignee     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  userId      String
+  reportType  String // 정보 오류|서비스 오류|정보 요청|기타
+  messageId   String?
+  content     String
+  contactBack Boolean  @default(false)
+  status      String   @default("new") // new|reviewing|resolved|closed
+  adminMemo   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/* ───────── 북마크 / 알림 ───────── */
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  itemType  String // answer|notice|schedule|source|question
+  itemId    String
+  title     String
+  meta      String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemType, itemId])
+}
+
+model Notification {
+  id               String   @id @default(cuid())
+  userId           String
+  notificationType String // important|deadline|recommend|bookmark|system
+  title            String
+  content          String
+  link             String?
+  isRead           Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/* ───────── 카테고리 ───────── */
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+/* ───────── 관리자 ───────── */
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  activityLogs AdminActivityLog[]
+}
+
+model AdminActivityLog {
+  id           String   @id @default(cuid())
+  adminId      String
+  action       String
+  resourceType String
+  resourceId   String?
+  metadata     String?
+  createdAt    DateTime @default(now())
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+}

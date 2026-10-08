@@ -9,3 +9,7 @@ prisma/dev.db-journal
 public/uploads/*
 !public/uploads/.gitkeep
 .DS_Store
+
+.vercel
+.env*
+!.env.example

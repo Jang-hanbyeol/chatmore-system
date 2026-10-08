@@ -5,7 +5,7 @@ import { db } from "@/lib/database/db";
 import { requireOnboardedUser } from "@/lib/auth/guards";
 import { Badge } from "@/components/ui/Badge";
 import { addPersonalEvent, deletePersonalEvent } from "@/lib/actions/user";
-import { cn, formatShortDate } from "@/lib/utils";
+import { cn, formatShortDate, kstParts, kstStartOfDay } from "@/lib/utils";
 import { PersonalEventForm } from "@/components/calendar/PersonalEventForm";
 
 export const metadata: Metadata = { title: "일정" };
@@ -28,15 +28,13 @@ export default async function CalendarPage({
 }) {
   const user = await requireOnboardedUser();
 
-  // 표시할 달 (기본: 이번 달)
-  const now = new Date();
-  const [y, m] = (searchParams.month ?? "")
-    .split("-")
-    .map((v) => Number(v));
-  const year = y && m ? y : now.getFullYear();
-  const month = y && m ? m - 1 : now.getMonth(); // 0-based
-  const monthStart = new Date(year, month, 1);
-  const monthEnd = new Date(year, month + 1, 0, 23, 59, 59);
+  // 표시할 달 (기본: 이번 달, KST 기준). ?month=YYYY-MM 형식만 허용
+  const today = kstParts();
+  const match = /^(d{4})-(0[1-9]|1[0-2])$/.exec(searchParams.month ?? "");
+  const year = match ? Number(match[1]) : today.year;
+  const month = match ? Number(match[2]) - 1 : today.month - 1; // 0-based
+  const monthStart = kstStartOfDay(year, month + 1, 1);
+  const monthEnd = new Date(kstStartOfDay(year, month + 2, 1).getTime() - 1);
   const category = searchParams.category;
 
   const events = await db.scheduleEvent.findMany({
@@ -56,28 +54,31 @@ export default async function CalendarPage({
     orderBy: { startAt: "asc" },
   });
 
-  // 달력 그리드 구성
-  const firstDay = monthStart.getDay();
-  const daysInMonth = monthEnd.getDate();
+  // 달력 그리드 구성 (요일·일수는 달력 계산이라 UTC 날짜 연산으로 충분)
+  const firstDay = new Date(Date.UTC(year, month, 1)).getUTCDay();
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
   const cells: (number | null)[] = [
     ...Array.from({ length: firstDay }, () => null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ];
   const eventsOn = (day: number) => {
-    const dayStart = new Date(year, month, day);
-    const dayEnd = new Date(year, month, day, 23, 59, 59);
+    const dayStart = kstStartOfDay(year, month + 1, day);
+    const dayEnd = new Date(kstStartOfDay(year, month + 1, day + 1).getTime() - 1);
     return events.filter(
       (e) =>
         e.startAt <= dayEnd && (e.endAt ? e.endAt >= dayStart : e.startAt >= dayStart)
     );
   };
 
-  const prev = new Date(year, month - 1, 1);
-  const next = new Date(year, month + 1, 1);
-  const monthParam = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  const ym = (y: number, m0: number) => {
+    const d = new Date(Date.UTC(y, m0, 1));
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+  };
+  const current = ym(year, month);
+  const prev = ym(year, month - 1);
+  const next = ym(year, month + 1);
   const isToday = (day: number) =>
-    now.getFullYear() === year && now.getMonth() === month && now.getDate() === day;
+    today.year === year && today.month === month + 1 && today.day === day;
 
   const categories = ["학사", "장학금", "비교과", "등록", "행사", "기타", "개인"];
 
@@ -96,7 +97,7 @@ export default async function CalendarPage({
       {/* 카테고리 필터 */}
       <nav aria-label="일정 카테고리" className="flex gap-1.5 overflow-x-auto pb-1 thin-scroll">
         <Link
-          href={`/calendar?month=${monthParam(monthStart)}`}
+          href={`/calendar?month=${current}`}
           className={cn(
             "shrink-0 rounded-md px-3.5 py-1.5 text-sm font-medium",
             !category ? "bg-ink text-white" : "bg-strong text-body"
@@ -107,7 +108,7 @@ export default async function CalendarPage({
         {categories.map((c) => (
           <Link
             key={c}
-            href={`/calendar?month=${monthParam(monthStart)}&category=${c}`}
+            href={`/calendar?month=${current}&category=${c}`}
             className={cn(
               "shrink-0 rounded-md px-3.5 py-1.5 text-sm font-medium",
               category === c ? "bg-ink text-white" : "bg-strong text-body"
@@ -126,14 +127,14 @@ export default async function CalendarPage({
           </h2>
           <div className="flex gap-1">
             <Link
-              href={`/calendar?month=${monthParam(prev)}${category ? `&category=${category}` : ""}`}
+              href={`/calendar?month=${prev}${category ? `&category=${category}` : ""}`}
               aria-label="이전 달"
               className="flex h-9 w-9 items-center justify-center rounded-md text-body hover:bg-soft"
             >
               <ChevronLeft size={17} aria-hidden />
             </Link>
             <Link
-              href={`/calendar?month=${monthParam(next)}${category ? `&category=${category}` : ""}`}
+              href={`/calendar?month=${next}${category ? `&category=${category}` : ""}`}
               aria-label="다음 달"
               className="flex h-9 w-9 items-center justify-center rounded-md text-body hover:bg-soft"
             >

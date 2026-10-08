@@ -2,13 +2,12 @@ import Link from "next/link";
 import { db } from "@/lib/database/db";
 import { StatusBadge } from "@/components/ui/Badge";
 import { HBars, TrendBars } from "@/components/admin/Charts";
-import { formatDateTime, truncate } from "@/lib/utils";
+import { formatDateTime, formatShortDate, kstToday, truncate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayStart = kstToday(); // KST 00:00 (서버가 UTC여도 한국 날짜 기준)
   const d14 = new Date(todayStart.getTime() - 13 * 24 * 3600 * 1000);
   const d7 = new Date(todayStart.getTime() - 7 * 24 * 3600 * 1000);
 
@@ -70,7 +69,7 @@ export default async function AdminDashboardPage() {
     const d = new Date(d14.getTime() + i * 24 * 3600 * 1000);
     const next = new Date(d.getTime() + 24 * 3600 * 1000);
     return {
-      label: `${d.getMonth() + 1}.${d.getDate()}`,
+      label: formatShortDate(d),
       value: userMsgs14d.filter((m) => m.createdAt >= d && m.createdAt < next).length,
     };
   });

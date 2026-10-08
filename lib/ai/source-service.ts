@@ -1,11 +1,12 @@
 import { db } from "@/lib/database/db";
+import { kstDateKey } from "@/lib/utils";
 import type { RelatedNotice, SourceItem } from "@/types/chat";
 import type { RankedSource } from "./rag-service";
 
 /** InformationSource → SourceItem 변환 및 관련 공지 조회 */
 
 function dateStr(d: Date | null | undefined): string | undefined {
-  return d ? d.toISOString().slice(0, 10) : undefined;
+  return d ? kstDateKey(d) : undefined;
 }
 
 export function toSourceItem(s: RankedSource): SourceItem {

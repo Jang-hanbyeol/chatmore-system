@@ -11,7 +11,7 @@ import { db } from "@/lib/database/db";
 import { requireOnboardedUser } from "@/lib/auth/guards";
 import { Badge } from "@/components/ui/Badge";
 import { BookmarkButton } from "@/components/ui/BookmarkButton";
-import { ddayLabel, formatShortDate, relativeTime } from "@/lib/utils";
+import { ddayLabel, formatShortDate, kstToday, relativeTime } from "@/lib/utils";
 import { QuickAsk } from "@/components/chat/QuickAsk";
 
 export const metadata: Metadata = { title: "홈" };
@@ -29,7 +29,6 @@ const QUICK_QUESTIONS = [
 export default async function HomePage() {
   const user = await requireOnboardedUser();
   const interests = user.interests ? user.interests.split(",") : [];
-  const now = new Date();
 
   const [notices, events, conversations, recommended, bookmarks] =
     await Promise.all([
@@ -41,7 +40,7 @@ export default async function HomePage() {
       db.scheduleEvent.findMany({
         where: {
           OR: [{ userId: null }, { userId: user.id }],
-          startAt: { gte: new Date(now.getTime() - 24 * 3600 * 1000) },
+          startAt: { gte: kstToday() }, // 오늘(KST) 일정부터
         },
         orderBy: { startAt: "asc" },
         take: 5,

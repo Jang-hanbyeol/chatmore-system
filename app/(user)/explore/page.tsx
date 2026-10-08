@@ -13,7 +13,7 @@ import { requireOnboardedUser } from "@/lib/auth/guards";
 import { Badge } from "@/components/ui/Badge";
 import { InfoCard } from "@/components/notice/InfoCard";
 import { EXPLORE_CATEGORIES } from "@/lib/validation/schemas";
-import { ddayLabel } from "@/lib/utils";
+import { ddayLabel, kstToday } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "정보 탐색" };
 export const dynamic = "force-dynamic";
@@ -43,7 +43,7 @@ export default async function ExplorePage({
       _count: true,
     }),
     db.informationSource.findMany({
-      where: { dataStatus: "active", endAt: { gte: new Date() } },
+      where: { dataStatus: "active", endAt: { gte: kstToday() } },
       orderBy: { endAt: "asc" },
       take: 5,
     }),

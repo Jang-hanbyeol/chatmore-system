@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
+import { kstDateKey } from "@/lib/utils";
 import { db } from "@/lib/database/db";
 import { InfoSourceForm } from "@/components/admin/InfoSourceForm";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "데이터 수정" };
 
-const dateInput = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
+const dateInput = (d: Date | null) => (d ? kstDateKey(d) : ""); // KST 날짜 (UTC로 자르면 하루 밀림)
 
 export default async function EditDataPage({
   params,

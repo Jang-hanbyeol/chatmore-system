@@ -1,7 +1,7 @@
 import { db } from "@/lib/database/db";
 import { HBars, TrendBars } from "@/components/admin/Charts";
 import { tokenize } from "@/lib/ai/rag-service";
-import { parseJson } from "@/lib/utils";
+import { formatShortDate, kstParts, parseJson } from "@/lib/utils";
 import type { SourceItem } from "@/types/chat";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +28,7 @@ export default async function AdminAnalyticsPage() {
   const hourly = Array.from({ length: 8 }, (_, i) => {
     const from = i * 3;
     const count = userMsgs.filter((m) => {
-      const h = new Date(m.createdAt).getHours();
+      const h = kstParts(m.createdAt).hour;
       return h >= from && h < from + 3;
     }).length;
     return { label: `${from}~${from + 3}시`, value: count };
@@ -62,7 +62,7 @@ export default async function AdminAnalyticsPage() {
     const inWeek = feedbacks.filter((f) => f.createdAt >= from && f.createdAt < to);
     const helpful = inWeek.filter((f) => f.feedbackType === "helpful").length;
     return {
-      label: `${from.getMonth() + 1}.${from.getDate()}~`,
+      label: `${formatShortDate(from)}~`,
       value: inWeek.length ? Math.round((helpful / inWeek.length) * 100) : 0,
     };
   });

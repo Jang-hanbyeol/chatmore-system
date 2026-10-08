@@ -9,7 +9,8 @@ import {
   toggleConversationBookmark,
 } from "@/lib/actions/chat";
 import { Badge } from "@/components/ui/Badge";
-import { cn, relativeTime } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { TimeAgo } from "@/components/ui/TimeAgo";
 
 export function ConversationRow({
   conversation,
@@ -81,7 +82,7 @@ export function ConversationRow({
               {c.lastQuestion || "질문 없음"}
             </p>
             <p className="mt-0.5 text-xs text-muted">
-              메시지 {c.messageCount}개 · {relativeTime(c.updatedAt)}
+              메시지 {c.messageCount}개 · <TimeAgo date={c.updatedAt} />
             </p>
           </Link>
         )}

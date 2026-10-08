@@ -1,4 +1,5 @@
 import type { ChatRequest, ChatResponse } from "@/types/chat";
+import { kstDateKey } from "@/lib/utils";
 import { searchSources } from "./rag-service";
 import { findRelatedNotices, toSourceItem } from "./source-service";
 
@@ -63,7 +64,7 @@ const FOLLOW_UPS: Record<string, string[]> = {
 };
 
 function fmtDate(d: Date | null): string | null {
-  return d ? d.toISOString().slice(0, 10) : null;
+  return d ? kstDateKey(d) : null;
 }
 
 async function mockGenerate(req: ChatRequest): Promise<ChatResponse> {
@@ -125,7 +126,7 @@ async function mockGenerate(req: ChatRequest): Promise<ChatResponse> {
     ),
     followUpQuestions: followUps,
     generatedAt: now,
-    dataCheckedAt: top.dataCheckedAt.toISOString().slice(0, 10),
+    dataCheckedAt: kstDateKey(top.dataCheckedAt),
     status: sources.length < 2 ? "partial" : "success",
     isDemo: true,
   };

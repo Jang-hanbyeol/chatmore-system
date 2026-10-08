@@ -2,10 +2,55 @@ export function cn(...classes: Array<string | false | null | undefined>): string
   return classes.filter(Boolean).join(" ");
 }
 
+/* ── 날짜: 서버(Vercel, UTC)와 브라우저 모두 한국 시간(KST) 기준으로 계산·표시 ── */
+
+export const TIME_ZONE = "Asia/Seoul";
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function toDate(date: Date | string): Date {
+  return typeof date === "string" ? new Date(date) : date;
+}
+
+/** KST 기준 연·월(1~12)·일·시(0~23)·요일(0=일) */
+export function kstParts(date: Date | string = new Date()) {
+  const k = new Date(toDate(date).getTime() + KST_OFFSET_MS);
+  return {
+    year: k.getUTCFullYear(),
+    month: k.getUTCMonth() + 1,
+    day: k.getUTCDate(),
+    hour: k.getUTCHours(),
+    weekday: k.getUTCDay(),
+  };
+}
+
+/** KST 날짜 문자열 YYYY-MM-DD (date input 값, 날짜 비교 키) */
+export function kstDateKey(date: Date | string = new Date()): string {
+  const { year, month, day } = kstParts(date);
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+/** KST 해당 날짜 00:00 의 실제 시각 (month 는 1~12, 범위를 넘으면 자동 이월) */
+export function kstStartOfDay(year: number, month: number, day: number): Date {
+  return new Date(Date.UTC(year, month - 1, day) - KST_OFFSET_MS);
+}
+
+/** 오늘(KST) 00:00 */
+export function kstToday(): Date {
+  const { year, month, day } = kstParts();
+  return kstStartOfDay(year, month, day);
+}
+
+/** KST 달력 기준 일수 차이 (b - a) */
+function kstDayDiff(a: Date, b: Date): number {
+  const dayNo = (d: Date) => Math.floor((d.getTime() + KST_OFFSET_MS) / DAY_MS);
+  return dayNo(b) - dayNo(a);
+}
+
 export function formatDate(date: Date | string | null | undefined): string {
   if (!date) return "-";
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleDateString("ko-KR", {
+  return toDate(date).toLocaleDateString("ko-KR", {
+    timeZone: TIME_ZONE,
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -14,14 +59,14 @@ export function formatDate(date: Date | string | null | undefined): string {
 
 export function formatShortDate(date: Date | string | null | undefined): string {
   if (!date) return "-";
-  const d = typeof date === "string" ? new Date(date) : date;
-  return `${d.getMonth() + 1}.${d.getDate()}`;
+  const { month, day } = kstParts(date);
+  return `${month}.${day}`;
 }
 
 export function formatDateTime(date: Date | string | null | undefined): string {
   if (!date) return "-";
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleString("ko-KR", {
+  return toDate(date).toLocaleString("ko-KR", {
+    timeZone: TIME_ZONE,
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
@@ -30,15 +75,17 @@ export function formatDateTime(date: Date | string | null | undefined): string {
 }
 
 export function formatTime(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
-  return d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
+  return toDate(date).toLocaleTimeString("ko-KR", {
+    timeZone: TIME_ZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
-/** 마감일까지 남은 일수. 지난 경우 음수 */
+/** 마감일까지 남은 일수(KST 달력 기준). 오늘 마감이면 0, 지난 경우 음수 */
 export function daysLeft(end: Date | string | null | undefined): number | null {
   if (!end) return null;
-  const d = typeof end === "string" ? new Date(end) : end;
-  return Math.ceil((d.getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+  return kstDayDiff(new Date(), toDate(end));
 }
 
 export function ddayLabel(end: Date | string | null | undefined): string | null {
@@ -50,7 +97,7 @@ export function ddayLabel(end: Date | string | null | undefined): string | null 
 }
 
 export function relativeTime(date: Date | string): string {
-  const d = typeof date === "string" ? new Date(date) : date;
+  const d = toDate(date);
   const diff = Date.now() - d.getTime();
   const min = Math.floor(diff / 60000);
   if (min < 1) return "방금 전";

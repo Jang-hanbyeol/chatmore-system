@@ -25,7 +25,8 @@ import type { RelatedNotice, SourceItem } from "@/types/chat";
 import { SymbolBadge } from "@/components/ui/Logo";
 import { Badge, StatusBadge } from "@/components/ui/Badge";
 import { NOT_HELPFUL_REASONS } from "@/lib/validation/schemas";
-import { cn, ddayLabel, formatTime, relativeTime } from "@/lib/utils";
+import { cn, ddayLabel, formatTime } from "@/lib/utils";
+import { TimeAgo } from "@/components/ui/TimeAgo";
 
 export type UiMessage = {
   id: string;
@@ -260,7 +261,7 @@ export function ChatScreen({
                         {c.title}
                       </span>
                     </span>
-                    <span className="text-[11px] text-muted">{relativeTime(c.updatedAt)}</span>
+                    <span className="text-[11px] text-muted"><TimeAgo date={c.updatedAt} /></span>
                   </Link>
                 </li>
               ))}

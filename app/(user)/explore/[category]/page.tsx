@@ -8,7 +8,7 @@ import { InfoCard } from "@/components/notice/InfoCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { EXPLORE_CATEGORIES } from "@/lib/validation/schemas";
 import { Compass } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, kstToday } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +43,7 @@ export default async function ExploreCategoryPage({
 
   const sort = searchParams.sort ?? "latest";
   const status = searchParams.status ?? "all";
-  const now = new Date();
+  const now = kstToday(); // 마감 당일 항목은 그날 하루 동안 유지
 
   const items = await db.informationSource.findMany({
     where: {

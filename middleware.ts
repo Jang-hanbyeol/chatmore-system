@@ -38,7 +38,9 @@ export function middleware(request: NextRequest) {
   if (!looksValid(request.cookies.get(USER_COOKIE)?.value)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    if (pathname !== "/") url.searchParams.set("next", pathname);
+    url.search = ""; // 원래 쿼리는 next 안에만 담는다
+    // 로그인 후 원래 페이지(쿼리 포함)로 돌아가도록 — 서버에서 safeNextPath 로 재검증
+    if (pathname !== "/") url.searchParams.set("next", pathname + request.nextUrl.search);
     return NextResponse.redirect(url);
   }
   return NextResponse.next();

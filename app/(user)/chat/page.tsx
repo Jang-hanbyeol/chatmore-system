@@ -13,7 +13,7 @@ export default async function ChatPage({
 }) {
   const user = await requireOnboardedUser();
   const conversations = await db.conversation.findMany({
-    where: { userId: user.id },
+    where: { userId: user.id, isEphemeral: false },
     orderBy: { updatedAt: "desc" },
     take: 20,
   });

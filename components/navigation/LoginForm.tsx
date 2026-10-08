@@ -27,7 +27,8 @@ function SubmitButton() {
   );
 }
 
-export function LoginForm() {
+/** next: 로그인 후 돌아갈 경로 (미들웨어가 붙인 ?next=, 서버에서 다시 검증) */
+export function LoginForm({ next }: { next?: string }) {
   const [state, formAction] = useFormState(userLogin, initial);
   const [showPw, setShowPw] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -41,6 +42,7 @@ export function LoginForm() {
   return (
     <div className="space-y-5">
       <form action={formAction} className="space-y-4" noValidate>
+      {next && <input type="hidden" name="next" value={next} />}
         {state.message && (
           <p
             role="alert"

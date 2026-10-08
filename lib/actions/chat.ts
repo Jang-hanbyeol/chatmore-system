@@ -56,10 +56,22 @@ export async function sendChatMessage(input: {
     if (!conv) return { ok: false, error: "대화를 찾을 수 없습니다." };
   } else {
     const conv = await db.conversation.create({
-      data: { userId, title: truncate(question, 30) },
+      data: { userId, title: truncate(question, 30), isEphemeral: !user.saveHistory },
     });
     conversationId = conv.id;
   }
+
+  // '대화 기록 저장'을 끈 사용자: 지금 대화만 남기고 이전의 기록 안 함 대화는 삭제.
+  // 다시 질문하지 않는 경우를 위해 24시간 지난 기록 안 함 대화도 함께 정리.
+  await db.conversation.deleteMany({
+    where: {
+      isEphemeral: true,
+      OR: [
+        { userId, NOT: { id: conversationId } },
+        { updatedAt: { lt: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
+      ],
+    },
+  });
 
   const userMessage = await db.message.create({
     data: { conversationId, role: "user", content: question },
@@ -69,11 +81,18 @@ export async function sendChatMessage(input: {
     const response = await generateAnswer({
       conversationId,
       message: question,
-      userContext: {
-        userType: user.userType,
-        department: user.department ?? undefined,
-        grade: user.grade ?? undefined,
-        interests: user.interests ? user.interests.split(",") : [],
+      // 맞춤 추천 동의한 경우에만 학과·관심사 등 개인 맥락을 AI 에 전달
+      userContext: user.allowPersonalization
+        ? {
+            userType: user.userType,
+            department: user.department ?? undefined,
+            grade: user.grade ?? undefined,
+            interests: user.interests ? user.interests.split(",") : [],
+          }
+        : undefined,
+      preferences: {
+        answerLength: user.answerLength === "simple" ? "simple" : "detailed",
+        language: user.language === "en" ? "en" : "ko",
       },
     });
 

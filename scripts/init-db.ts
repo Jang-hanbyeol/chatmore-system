@@ -51,6 +51,7 @@ const S = [
   "title" TEXT NOT NULL DEFAULT '새 대화',
   "category" TEXT,
   "isBookmarked" BOOLEAN NOT NULL DEFAULT false,
+  "isEphemeral" BOOLEAN NOT NULL DEFAULT false,
   "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" DATETIME NOT NULL,
   CONSTRAINT "Conversation_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -192,8 +193,24 @@ const S = [
 )`,
 ];
 
+/** 이미 만들어진 테이블에 나중에 추가된 컬럼 (CREATE TABLE IF NOT EXISTS 로는 추가되지 않음) */
+const ADDED_COLUMNS: { table: string; column: string; ddl: string }[] = [
+  {
+    table: "Conversation",
+    column: "isEphemeral",
+    ddl: `ALTER TABLE "Conversation" ADD COLUMN "isEphemeral" BOOLEAN NOT NULL DEFAULT false`,
+  },
+];
+
 async function main() {
   for (const sql of S) await db.execute(sql);
+  for (const c of ADDED_COLUMNS) {
+    const info = await db.execute(`PRAGMA table_info("${c.table}")`);
+    if (!info.rows.some((r) => r.name === c.column)) {
+      await db.execute(c.ddl);
+      console.log(`컬럼 추가: ${c.table}.${c.column}`);
+    }
+  }
   console.log(`테이블 생성 완료: ${config.url}`);
   db.close();
 }

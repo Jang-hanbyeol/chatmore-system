@@ -95,7 +95,9 @@ async function mockGenerate(req: ChatRequest): Promise<ChatResponse> {
   const lines: string[] = [];
   lines.push(`${top.summary} (데모 답변)`);
   lines.push("");
-  sources.forEach((s, i) => {
+  // 설정 '간단한 설명': 가장 관련 높은 항목의 핵심만 (나머지는 출처 목록에서 확인)
+  const simple = req.preferences?.answerLength === "simple";
+  (simple ? sources.slice(0, 1) : sources).forEach((s, i) => {
     lines.push(`${i + 1}. ${s.title}`);
     const period =
       s.startAt || s.endAt
@@ -103,12 +105,15 @@ async function mockGenerate(req: ChatRequest): Promise<ChatResponse> {
         : null;
     if (period) lines.push(period);
     lines.push(`   · 담당: ${s.department}`);
+    if (simple) return;
     const firstLine = s.content.split("\n").find((l) => l.trim());
     if (firstLine) lines.push(`   · ${firstLine.trim()}`);
   });
   lines.push("");
   lines.push(
-    "중요한 신청·행정 업무는 반드시 아래 공식 출처의 원문과 담당 부서를 확인해 주세요."
+    simple
+      ? "자세한 내용은 아래 출처에서 확인하세요."
+      : "중요한 신청·행정 업무는 반드시 아래 공식 출처의 원문과 담당 부서를 확인해 주세요."
   );
 
   const followUps =

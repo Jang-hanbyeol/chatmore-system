@@ -24,6 +24,7 @@ export default async function HistoryPage({
   const conversations = await db.conversation.findMany({
     where: {
       userId: user.id,
+      isEphemeral: false, // '대화 기록 저장' 끈 상태의 대화는 목록에 표시하지 않음
       ...(filter === "bookmarked" ? { isBookmarked: true } : {}),
       ...(q
         ? {

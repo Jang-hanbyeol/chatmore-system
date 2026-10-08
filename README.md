@@ -218,7 +218,10 @@ UI는 `lib/ai/chat-service.ts` 의 `ChatResponse` 규격만 사용하므로, 외
 {
   "conversationId": "cuid",
   "message": "이번 학기 장학금 알려줘",
-  "userContext": { "userType": "재학생", "department": "컴퓨터공학과", "grade": "3학년", "interests": ["장학금"] }
+  // 사용자가 '맞춤 추천 데이터 활용'에 동의한 경우에만 포함
+  "userContext": { "userType": "재학생", "department": "컴퓨터공학과", "grade": "3학년", "interests": ["장학금"] },
+  // 설정 > 챗봇: simple 이면 핵심만 짧게
+  "preferences": { "answerLength": "detailed", "language": "ko" }
 }
 // 응답 (ChatResponse)
 {

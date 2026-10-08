@@ -9,6 +9,11 @@ export type ChatRequest = {
     grade?: string;
     interests?: string[];
   };
+  /** 사용자 설정 (설정 > 챗봇) */
+  preferences?: {
+    answerLength?: "simple" | "detailed";
+    language?: "ko" | "en";
+  };
 };
 
 export type SourceItem = {

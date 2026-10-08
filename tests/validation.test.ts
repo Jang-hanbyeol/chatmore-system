@@ -69,3 +69,14 @@ describe("입력 검증", () => {
     expect(profileSchema.safeParse({ userType: "재학생", interests: ["장학금"] }).success).toBe(true);
   });
 });
+
+describe("로그인 후 이동 경로(next) 검증", () => {
+  it("학생 영역 내부 경로만 허용한다", async () => {
+    const { safeNextPath } = await import("@/lib/utils/url");
+    expect(safeNextPath("/calendar?month=2026-10")).toBe("/calendar?month=2026-10");
+    expect(safeNextPath("/chat/abc")).toBe("/chat/abc");
+    for (const bad of ["//evil.com", "/\\evil.com", "https://evil.com", "evil", "/admin", "/admin/users", "/login", "/api/my-data", "", null]) {
+      expect(safeNextPath(bad)).toBeNull();
+    }
+  });
+});

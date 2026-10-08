@@ -11,6 +11,7 @@ import {
   setUserSession,
 } from "@/lib/auth/session";
 import { loginSchema } from "@/lib/validation/schemas";
+import { safeNextPath } from "@/lib/utils/url";
 
 export type FormState = {
   ok: boolean;
@@ -56,7 +57,7 @@ export async function userLogin(
     data: { lastActiveAt: new Date() },
   });
   setUserSession(user.id);
-  redirect(user.onboarded ? "/home" : "/onboarding");
+  redirect(user.onboarded ? (safeNextPath(formData.get("next")) ?? "/home") : "/onboarding");
 }
 
 export async function userLogout() {

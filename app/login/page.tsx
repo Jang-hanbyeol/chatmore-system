@@ -7,7 +7,11 @@ import { LoginForm } from "@/components/navigation/LoginForm";
 
 export const metadata: Metadata = { title: "로그인" };
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: { next?: string };
+}) {
   if (await getActiveUser()) redirect("/home");
   return (
     <div className="flex min-h-dvh items-center justify-center bg-canvas px-5 py-10">
@@ -19,7 +23,7 @@ export default async function LoginPage() {
           </p>
         </div>
         <div className="rounded-lg border border-hairline bg-surface p-7 shadow-card">
-          <LoginForm />
+          <LoginForm next={searchParams.next} />
         </div>
         <p className="mt-6 text-center text-sm text-body">
           아직 계정이 없으신가요?{" "}

@@ -30,6 +30,7 @@ export type ConversationMinAggregateOutputType = {
   title: string | null
   category: string | null
   isBookmarked: boolean | null
+  isEphemeral: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,6 +41,7 @@ export type ConversationMaxAggregateOutputType = {
   title: string | null
   category: string | null
   isBookmarked: boolean | null
+  isEphemeral: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +52,7 @@ export type ConversationCountAggregateOutputType = {
   title: number
   category: number
   isBookmarked: number
+  isEphemeral: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -62,6 +65,7 @@ export type ConversationMinAggregateInputType = {
   title?: true
   category?: true
   isBookmarked?: true
+  isEphemeral?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -72,6 +76,7 @@ export type ConversationMaxAggregateInputType = {
   title?: true
   category?: true
   isBookmarked?: true
+  isEphemeral?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +87,7 @@ export type ConversationCountAggregateInputType = {
   title?: true
   category?: true
   isBookmarked?: true
+  isEphemeral?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -165,6 +171,7 @@ export type ConversationGroupByOutputType = {
   title: string
   category: string | null
   isBookmarked: boolean
+  isEphemeral: boolean
   createdAt: Date
   updatedAt: Date
   _count: ConversationCountAggregateOutputType | null
@@ -196,6 +203,7 @@ export type ConversationWhereInput = {
   title?: Prisma.StringFilter<"Conversation"> | string
   category?: Prisma.StringNullableFilter<"Conversation"> | string | null
   isBookmarked?: Prisma.BoolFilter<"Conversation"> | boolean
+  isEphemeral?: Prisma.BoolFilter<"Conversation"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -208,6 +216,7 @@ export type ConversationOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   isBookmarked?: Prisma.SortOrder
+  isEphemeral?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -223,6 +232,7 @@ export type ConversationWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Conversation"> | string
   category?: Prisma.StringNullableFilter<"Conversation"> | string | null
   isBookmarked?: Prisma.BoolFilter<"Conversation"> | boolean
+  isEphemeral?: Prisma.BoolFilter<"Conversation"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -235,6 +245,7 @@ export type ConversationOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   isBookmarked?: Prisma.SortOrder
+  isEphemeral?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ConversationCountOrderByAggregateInput
@@ -251,6 +262,7 @@ export type ConversationScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Conversation"> | string
   category?: Prisma.StringNullableWithAggregatesFilter<"Conversation"> | string | null
   isBookmarked?: Prisma.BoolWithAggregatesFilter<"Conversation"> | boolean
+  isEphemeral?: Prisma.BoolWithAggregatesFilter<"Conversation"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Conversation"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Conversation"> | Date | string
 }
@@ -260,6 +272,7 @@ export type ConversationCreateInput = {
   title?: string
   category?: string | null
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutConversationsInput
@@ -272,6 +285,7 @@ export type ConversationUncheckedCreateInput = {
   title?: string
   category?: string | null
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutConversationInput
@@ -282,6 +296,7 @@ export type ConversationUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBookmarked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEphemeral?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutConversationsNestedInput
@@ -294,6 +309,7 @@ export type ConversationUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBookmarked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEphemeral?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutConversationNestedInput
@@ -305,6 +321,7 @@ export type ConversationCreateManyInput = {
   title?: string
   category?: string | null
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -314,6 +331,7 @@ export type ConversationUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBookmarked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEphemeral?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -324,6 +342,7 @@ export type ConversationUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBookmarked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEphemeral?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -344,6 +363,7 @@ export type ConversationCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   category?: Prisma.SortOrder
   isBookmarked?: Prisma.SortOrder
+  isEphemeral?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -354,6 +374,7 @@ export type ConversationMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   category?: Prisma.SortOrder
   isBookmarked?: Prisma.SortOrder
+  isEphemeral?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -364,6 +385,7 @@ export type ConversationMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   category?: Prisma.SortOrder
   isBookmarked?: Prisma.SortOrder
+  isEphemeral?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -434,6 +456,7 @@ export type ConversationCreateWithoutUserInput = {
   title?: string
   category?: string | null
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.MessageCreateNestedManyWithoutConversationInput
@@ -444,6 +467,7 @@ export type ConversationUncheckedCreateWithoutUserInput = {
   title?: string
   category?: string | null
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutConversationInput
@@ -483,6 +507,7 @@ export type ConversationScalarWhereInput = {
   title?: Prisma.StringFilter<"Conversation"> | string
   category?: Prisma.StringNullableFilter<"Conversation"> | string | null
   isBookmarked?: Prisma.BoolFilter<"Conversation"> | boolean
+  isEphemeral?: Prisma.BoolFilter<"Conversation"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Conversation"> | Date | string
 }
@@ -492,6 +517,7 @@ export type ConversationCreateWithoutMessagesInput = {
   title?: string
   category?: string | null
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutConversationsInput
@@ -503,6 +529,7 @@ export type ConversationUncheckedCreateWithoutMessagesInput = {
   title?: string
   category?: string | null
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -528,6 +555,7 @@ export type ConversationUpdateWithoutMessagesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBookmarked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEphemeral?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutConversationsNestedInput
@@ -539,6 +567,7 @@ export type ConversationUncheckedUpdateWithoutMessagesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBookmarked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEphemeral?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -548,6 +577,7 @@ export type ConversationCreateManyUserInput = {
   title?: string
   category?: string | null
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -557,6 +587,7 @@ export type ConversationUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBookmarked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEphemeral?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUpdateManyWithoutConversationNestedInput
@@ -567,6 +598,7 @@ export type ConversationUncheckedUpdateWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBookmarked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEphemeral?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutConversationNestedInput
@@ -577,6 +609,7 @@ export type ConversationUncheckedUpdateManyWithoutUserInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isBookmarked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEphemeral?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -618,6 +651,7 @@ export type ConversationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   title?: boolean
   category?: boolean
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -631,6 +665,7 @@ export type ConversationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   title?: boolean
   category?: boolean
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -642,6 +677,7 @@ export type ConversationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   title?: boolean
   category?: boolean
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -653,11 +689,12 @@ export type ConversationSelectScalar = {
   title?: boolean
   category?: boolean
   isBookmarked?: boolean
+  isEphemeral?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ConversationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "category" | "isBookmarked" | "createdAt" | "updatedAt", ExtArgs["result"]["conversation"]>
+export type ConversationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "category" | "isBookmarked" | "isEphemeral" | "createdAt" | "updatedAt", ExtArgs["result"]["conversation"]>
 export type ConversationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   messages?: boolean | Prisma.Conversation$messagesArgs<ExtArgs>
@@ -682,6 +719,7 @@ export type $ConversationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     title: string
     category: string | null
     isBookmarked: boolean
+    isEphemeral: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["conversation"]>
@@ -1114,6 +1152,7 @@ export interface ConversationFieldRefs {
   readonly title: Prisma.FieldRef<"Conversation", 'String'>
   readonly category: Prisma.FieldRef<"Conversation", 'String'>
   readonly isBookmarked: Prisma.FieldRef<"Conversation", 'Boolean'>
+  readonly isEphemeral: Prisma.FieldRef<"Conversation", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Conversation", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Conversation", 'DateTime'>
 }

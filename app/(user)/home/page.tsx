@@ -28,7 +28,9 @@ const QUICK_QUESTIONS = [
 
 export default async function HomePage() {
   const user = await requireOnboardedUser();
-  const interests = user.interests ? user.interests.split(",") : [];
+  // 맞춤 추천 동의 시에만 관심 분야로 추천 (미동의: 최신 정보)
+  const interests =
+    user.allowPersonalization && user.interests ? user.interests.split(",") : [];
 
   const [notices, events, conversations, recommended, bookmarks] =
     await Promise.all([
@@ -46,7 +48,7 @@ export default async function HomePage() {
         take: 5,
       }),
       db.conversation.findMany({
-        where: { userId: user.id },
+        where: { userId: user.id, isEphemeral: false },
         orderBy: { updatedAt: "desc" },
         take: 3,
         include: {

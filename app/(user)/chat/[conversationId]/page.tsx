@@ -22,7 +22,7 @@ export default async function ConversationPage({
   if (!conversation) notFound();
 
   const conversations = await db.conversation.findMany({
-    where: { userId: user.id },
+    where: { userId: user.id, isEphemeral: false },
     orderBy: { updatedAt: "desc" },
     take: 20,
   });

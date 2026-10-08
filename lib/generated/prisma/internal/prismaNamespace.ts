@@ -1544,6 +1544,7 @@ export const ConversationScalarFieldEnum = {
   title: 'title',
   category: 'category',
   isBookmarked: 'isBookmarked',
+  isEphemeral: 'isEphemeral',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

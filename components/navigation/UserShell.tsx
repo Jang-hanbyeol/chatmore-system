@@ -121,8 +121,8 @@ export function UserShell({
 
       {/* 데스크톱 사이드바 */}
       {/* 화면에 고정: 본문 길이·넘침과 무관하게 사이드바(하단 프로필 포함)는 제자리, 본문만 스크롤 */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-hairline bg-surface lg:flex">
-        <div className="flex h-16 items-center border-b border-hairline-soft px-5">
+      <aside className="fixed bottom-0 left-0 top-[var(--titlebar-h)] z-30 hidden w-60 flex-col border-r border-hairline bg-surface lg:flex">
+        <div className="wco-hide flex h-16 items-center border-b border-hairline-soft px-5">
           <Link href="/home" aria-label="Chatmore 홈">
             <Logo variant="horizontal" height={26} priority />
           </Link>
@@ -155,7 +155,7 @@ export function UserShell({
       {/* 본문 */}
       <div className="flex min-w-0 flex-1 flex-col lg:pl-60">
         {/* 모바일 헤더 */}
-        <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-hairline bg-surface px-4 lg:hidden">
+        <header className="sticky top-[var(--titlebar-h)] z-40 flex h-14 items-center justify-between border-b border-hairline bg-surface px-4 lg:hidden">
           <button
             type="button"
             aria-label="메뉴 열기"

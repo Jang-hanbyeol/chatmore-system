@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "@/styles/globals.css";
 import { getActiveUser } from "@/lib/auth/guards";
+import { AppTitleBar } from "@/components/navigation/AppTitleBar";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
@@ -39,6 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       data-motion={user?.reduceMotion ? "reduced" : "default"}
     >
       <body>
+        <AppTitleBar />
         <a href="#main" className="skip-nav">
           본문으로 건너뛰기
         </a>

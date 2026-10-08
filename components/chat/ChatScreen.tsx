@@ -224,7 +224,7 @@ export function ChatScreen({
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
 
   return (
-    <div className="mx-auto grid h-[calc(100dvh-3.5rem)] w-full max-w-[1400px] gap-4 p-3 md:p-4 lg:h-dvh lg:grid-cols-[250px_1fr_290px] lg:p-5">
+    <div className="mx-auto grid h-[calc(100dvh-3.5rem-var(--titlebar-h))] w-full max-w-[1400px] gap-4 p-3 md:p-4 lg:h-[calc(100dvh-var(--titlebar-h))] lg:grid-cols-[250px_1fr_290px] lg:p-5">
       {/* 좌: 대화 목록 */}
       <aside className="hidden min-h-0 flex-col lg:flex" aria-label="대화 목록">
         <Link

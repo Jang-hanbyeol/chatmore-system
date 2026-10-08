@@ -132,3 +132,51 @@ html[data-motion="reduced"] *::after {
   background: var(--color-border);
   border-radius: 3px;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   설치형 앱 창: 제목 표시줄 통합 (Window Controls Overlay)
+   일반 브라우저 탭에서는 --titlebar-h 가 0 이라 아무 영향이 없다.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --titlebar-h: 0px;
+}
+.app-titlebar {
+  display: none;
+}
+@media (display-mode: window-controls-overlay) {
+  :root {
+    --titlebar-h: env(titlebar-area-height, 33px);
+  }
+  .app-titlebar {
+    position: fixed;
+    top: env(titlebar-area-y, 0);
+    left: env(titlebar-area-x, 0);
+    width: env(titlebar-area-width, 100%);
+    height: var(--titlebar-h);
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 0.875rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border-soft);
+    /* 창 끌기 영역: 드래그로 이동, 더블클릭으로 최대화 */
+    -webkit-app-region: drag;
+    app-region: drag;
+    user-select: none;
+  }
+  /* 오른쪽 OS 버튼(최소화·최대화·닫기) 아래 빈 공간도 같은 색으로 */
+  html {
+    background: var(--color-surface);
+  }
+  body {
+    padding-top: var(--titlebar-h);
+  }
+  .min-h-dvh {
+    min-height: calc(100dvh - var(--titlebar-h));
+  }
+  /* 상단바에 로고가 있으므로 사이드바 로고 줄은 숨김 */
+  .wco-hide {
+    display: none !important;
+  }
+}

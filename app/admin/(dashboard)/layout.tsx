@@ -47,7 +47,7 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-dvh bg-canvas">
       {/* 화면에 고정: 본문 길이·넘침과 무관하게 사이드바(하단 프로필 포함)는 제자리, 본문만 스크롤 */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-hairline bg-surface lg:flex">
+      <aside className="fixed bottom-0 left-0 top-[var(--titlebar-h)] z-30 hidden w-60 flex-col border-r border-hairline bg-surface lg:flex">
         <div className="flex h-16 items-center gap-2 border-b border-hairline-soft px-5">
           <Logo variant="symbol" height={28} />
           <span className="font-semibold text-ink">Chatmore</span>

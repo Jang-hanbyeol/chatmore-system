@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getSessionAdminId } from "@/lib/auth/session";
+import { getActiveAdmin } from "@/lib/auth/guards";
 import { Logo } from "@/components/ui/Logo";
 import { AdminLoginForm } from "@/components/admin/AdminLoginForm";
 
 export const metadata: Metadata = { title: "관리자 로그인", robots: { index: false } };
 
-export default function AdminLoginPage() {
-  if (getSessionAdminId()) redirect("/admin");
+export default async function AdminLoginPage() {
+  if (await getActiveAdmin()) redirect("/admin");
   return (
     <div className="flex min-h-dvh items-center justify-center bg-canvas px-5">
       <div className="w-full max-w-md">

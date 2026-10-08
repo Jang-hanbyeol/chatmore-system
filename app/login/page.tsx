@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getSessionUserId } from "@/lib/auth/session";
+import { getActiveUser } from "@/lib/auth/guards";
 import { Logo } from "@/components/ui/Logo";
 import { LoginForm } from "@/components/navigation/LoginForm";
 
 export const metadata: Metadata = { title: "로그인" };
 
-export default function LoginPage() {
-  if (getSessionUserId()) redirect("/home");
+export default async function LoginPage() {
+  if (await getActiveUser()) redirect("/home");
   return (
     <div className="flex min-h-dvh items-center justify-center bg-canvas px-5 py-10">
       <div className="w-full max-w-md">

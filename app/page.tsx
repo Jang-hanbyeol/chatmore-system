@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { getSessionUserId } from "@/lib/auth/session";
+import { getActiveUser } from "@/lib/auth/guards";
 
-export default function RootPage() {
-  redirect(getSessionUserId() ? "/home" : "/login");
+export default async function RootPage() {
+  redirect((await getActiveUser()) ? "/home" : "/login");
 }

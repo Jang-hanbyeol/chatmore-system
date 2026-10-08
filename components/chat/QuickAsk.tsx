@@ -36,7 +36,7 @@ export function QuickAsk({ quickQuestions }: { quickQuestions: string[] }) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="무엇을 찾고 계신가요?"
-          className="h-12 w-full rounded-md border border-hairline bg-surface px-4 text-[15px] text-ink placeholder:text-muted-soft focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className="h-12 w-full rounded-md border border-hairline bg-surface px-4 text-[0.9375rem] text-ink placeholder:text-muted-soft focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
         <button
           type="submit"
@@ -52,7 +52,7 @@ export function QuickAsk({ quickQuestions }: { quickQuestions: string[] }) {
             key={q}
             type="button"
             onClick={() => go(q)}
-            className="shrink-0 rounded-pill border border-hairline bg-surface px-3.5 py-1.5 text-[13px] text-body hover:border-primary hover:text-primary"
+            className="shrink-0 rounded-pill border border-hairline bg-surface px-3.5 py-1.5 text-[0.8125rem] text-body hover:border-primary hover:text-primary"
           >
             {q}
           </button>

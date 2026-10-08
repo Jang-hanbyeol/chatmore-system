@@ -73,7 +73,7 @@ export default async function ExplorePage({
     <div className="mx-auto max-w-5xl space-y-8 p-4 md:p-8">
       <header>
         <h1 className="text-2xl font-semibold text-ink">정보 탐색</h1>
-        <p className="mt-1.5 text-[15px] text-body">
+        <p className="mt-1.5 text-[0.9375rem] text-body">
           카테고리별로 대학 정보를 찾아보거나 검색해 보세요.
         </p>
       </header>
@@ -89,7 +89,7 @@ export default async function ExplorePage({
           type="search"
           defaultValue={q}
           placeholder="예: 장학금, 수강신청, 기숙사"
-          className="h-12 w-full max-w-lg rounded-md border border-hairline bg-surface px-4 text-[15px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className="h-12 w-full max-w-lg rounded-md border border-hairline bg-surface px-4 text-[0.9375rem] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
         <button
           type="submit"
@@ -172,7 +172,7 @@ export default async function ExplorePage({
                     <Badge tone="amber">{ddayLabel(d.endAt)}</Badge>
                     <Link
                       href={`/chat?q=${encodeURIComponent(`${d.title}에 대해 알려줘`)}`}
-                      className="min-w-0 flex-1 truncate text-[15px] font-medium text-ink hover:text-primary"
+                      className="min-w-0 flex-1 truncate text-[0.9375rem] font-medium text-ink hover:text-primary"
                     >
                       {d.title}
                     </Link>

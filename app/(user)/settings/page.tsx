@@ -15,7 +15,7 @@ export default async function SettingsPage() {
     <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-8">
       <header>
         <h1 className="text-2xl font-semibold text-ink">설정</h1>
-        <p className="mt-1.5 text-[15px] text-body">
+        <p className="mt-1.5 text-[0.9375rem] text-body">
           프로필, 챗봇 응답 방식과 접근성을 설정합니다.
         </p>
       </header>

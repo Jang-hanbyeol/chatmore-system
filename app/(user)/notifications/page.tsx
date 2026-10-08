@@ -92,7 +92,7 @@ export default async function NotificationsPage() {
                         <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-label="읽지 않음" />
                       )}
                     </p>
-                    <p className="mt-0.5 text-[15px] font-semibold text-ink">{n.title}</p>
+                    <p className="mt-0.5 text-[0.9375rem] font-semibold text-ink">{n.title}</p>
                     <p className="mt-0.5 text-sm text-body">{n.content}</p>
                     <div className="mt-2 flex gap-3">
                       {n.link && (

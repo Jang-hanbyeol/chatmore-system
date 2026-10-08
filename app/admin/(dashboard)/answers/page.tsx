@@ -1,4 +1,5 @@
 import { db } from "@/lib/database/db";
+import { PendingButton } from "@/components/ui/PendingButton";
 import { updateFeedbackStatus } from "@/lib/actions/admin";
 import { StatusBadge } from "@/components/ui/Badge";
 import { inputCls } from "@/components/ui/Field";
@@ -94,7 +95,7 @@ export default async function AdminAnswersPage({
                   </div>
                   <div>
                     <dt className="text-xs font-semibold text-muted">AI 답변</dt>
-                    <dd className="mt-0.5 whitespace-pre-wrap rounded-md bg-soft px-3.5 py-2.5 text-[13px] leading-relaxed text-body">
+                    <dd className="mt-0.5 whitespace-pre-wrap rounded-md bg-soft px-3.5 py-2.5 text-[0.8125rem] leading-relaxed text-body">
                       {truncate(f.message.content, 400)}
                     </dd>
                   </div>
@@ -128,9 +129,9 @@ export default async function AdminAnswersPage({
                     <span className="block text-xs font-semibold text-muted">관리자 메모</span>
                     <input name="adminMemo" defaultValue={f.adminMemo ?? ""} placeholder="처리 내용 기록" className={`${inputCls()} mt-1 h-10`} />
                   </label>
-                  <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-active">
+                  <PendingButton className="h-10 rounded-md bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-active disabled:opacity-60">
                     저장
-                  </button>
+                  </PendingButton>
                   <a
                     href="/admin/data"
                     className="h-10 rounded-md bg-strong px-4 text-sm font-semibold leading-10 text-ink hover:bg-hairline"

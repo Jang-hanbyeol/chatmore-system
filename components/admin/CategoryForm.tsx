@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { saveCategory } from "@/lib/actions/admin";
 import type { FormState } from "@/lib/actions/auth";
@@ -26,8 +27,13 @@ export function CategoryForm({
   category?: { id: string; name: string; sortOrder: number; isActive: boolean };
 }) {
   const [state, formAction] = useFormState(saveCategory, initial);
+  const formRef = useRef<HTMLFormElement>(null);
+  // 새 카테고리 추가 성공 시 입력을 비워 같은 항목의 중복 추가를 막는다
+  useEffect(() => {
+    if (state.ok && !category) formRef.current?.reset();
+  }, [state, category]);
   return (
-    <form action={formAction} className="flex flex-wrap items-end gap-3">
+    <form ref={formRef} action={formAction} className="flex flex-wrap items-end gap-3">
       {state.message && (
         <p
           role={state.ok ? "status" : "alert"}

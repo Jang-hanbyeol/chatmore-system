@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { CheckCircle2 } from "lucide-react";
 import { submitReport } from "@/lib/actions/user";
@@ -19,7 +20,25 @@ function SubmitButton() {
   );
 }
 
+/** 접수 후 "다른 내용 신고하기"로 새 폼을 열 수 있도록 key 로 폼 상태를 초기화 */
 export function ReportForm({ defaultMessageId }: { defaultMessageId?: string }) {
+  const [round, setRound] = useState(0);
+  return (
+    <ReportFormInner
+      key={round}
+      defaultMessageId={round === 0 ? defaultMessageId : undefined}
+      onReset={() => setRound((r) => r + 1)}
+    />
+  );
+}
+
+function ReportFormInner({
+  defaultMessageId,
+  onReset,
+}: {
+  defaultMessageId?: string;
+  onReset: () => void;
+}) {
   const [state, formAction] = useFormState(submitReport, initial);
 
   if (state.ok) {
@@ -30,6 +49,9 @@ export function ReportForm({ defaultMessageId }: { defaultMessageId?: string }) 
         <p className="mt-1.5 text-sm text-body">
           보내주신 내용은 답변 품질 개선에 활용됩니다.
         </p>
+        <Button type="button" variant="secondary" className="mt-5" onClick={onReset}>
+          다른 내용 신고하기
+        </Button>
       </div>
     );
   }

@@ -14,7 +14,7 @@ export default async function LoginPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Logo variant="vertical" height={92} className="mx-auto" priority />
-          <p className="mt-4 text-[15px] text-body">
+          <p className="mt-4 text-[0.9375rem] text-body">
             흩어진 대학 정보를 하나의 대화로.
           </p>
         </div>

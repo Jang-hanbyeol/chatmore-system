@@ -16,6 +16,7 @@ import {
 import { requireAdmin } from "@/lib/auth/guards";
 import { adminLogout } from "@/lib/actions/auth";
 import { Logo } from "@/components/ui/Logo";
+import { AdminNavLink } from "@/components/admin/AdminNavLink";
 
 export const metadata: Metadata = {
   title: { default: "관리자", template: "%s | Chatmore 관리자" },
@@ -49,20 +50,21 @@ export default async function AdminLayout({
         <div className="flex h-16 items-center gap-2 border-b border-hairline-soft px-5">
           <Logo variant="symbol" height={28} />
           <span className="font-semibold text-ink">Chatmore</span>
-          <span className="rounded-sm bg-strong px-1.5 py-0.5 text-[10px] font-bold text-muted">
+          <span className="rounded-sm bg-strong px-1.5 py-0.5 text-[0.625rem] font-bold text-muted">
             ADMIN
           </span>
         </div>
         <nav aria-label="관리자 메뉴" className="flex-1 space-y-0.5 overflow-y-auto p-3 thin-scroll">
           {MENU.map((m) => (
-            <Link
+            <AdminNavLink
               key={m.href}
               href={m.href}
               className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-body hover:bg-soft hover:text-ink"
+              activeClassName="bg-primary/10 font-semibold text-primary hover:bg-primary/10 hover:text-primary"
             >
               <m.icon size={16} aria-hidden />
               {m.label}
-            </Link>
+            </AdminNavLink>
           ))}
         </nav>
         <div className="border-t border-hairline-soft p-4">
@@ -103,13 +105,14 @@ export default async function AdminLayout({
           className="flex gap-1 overflow-x-auto border-b border-hairline bg-surface px-3 py-2 lg:hidden"
         >
           {MENU.map((m) => (
-            <Link
+            <AdminNavLink
               key={m.href}
               href={m.href}
               className="shrink-0 rounded-md bg-strong px-3 py-1.5 text-xs font-medium text-ink"
+              activeClassName="bg-ink font-semibold text-white"
             >
               {m.label}
-            </Link>
+            </AdminNavLink>
           ))}
         </nav>
         <main id="main" className="min-w-0 flex-1 p-4 md:p-7">

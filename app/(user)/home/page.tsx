@@ -85,7 +85,7 @@ export default async function HomePage() {
         <h1 id="welcome" className="text-2xl font-semibold text-ink md:text-3xl">
           안녕하세요, {user.name}님.
         </h1>
-        <p className="mt-1.5 text-[15px] text-body">
+        <p className="mt-1.5 text-[0.9375rem] text-body">
           오늘 필요한 대학 정보를 확인해 보세요.
         </p>
         <div className="mt-5">
@@ -167,7 +167,7 @@ export default async function HomePage() {
                     {formatShortDate(e.startAt)}
                   </span>
                   {e.endAt && (
-                    <span className="block text-[11px] text-muted">
+                    <span className="block text-[0.6875rem] text-muted">
                       ~{formatShortDate(e.endAt)}
                     </span>
                   )}
@@ -207,7 +207,7 @@ export default async function HomePage() {
                     <Badge tone="amber">{ddayLabel(n.endAt)}</Badge>
                   )}
                 </div>
-                <p className="mt-1 truncate text-[15px] font-medium text-ink group-hover:text-primary">
+                <p className="mt-1 truncate text-[0.9375rem] font-medium text-ink group-hover:text-primary">
                   {n.title}
                 </p>
               </Link>
@@ -252,7 +252,7 @@ export default async function HomePage() {
                   className="group flex items-center gap-4 px-5 py-3.5"
                 >
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[15px] font-medium text-ink group-hover:text-primary">
+                    <span className="block truncate text-[0.9375rem] font-medium text-ink group-hover:text-primary">
                       {c.title}
                     </span>
                     <span className="block truncate text-xs text-muted">

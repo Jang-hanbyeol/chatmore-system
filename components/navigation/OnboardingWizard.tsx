@@ -49,7 +49,17 @@ export function OnboardingWizard({
   const [interests, setInterests] = useState<string[]>(defaults.interests);
 
   return (
-    <form action={formAction} className="flex flex-1 flex-col">
+    <form
+      action={formAction}
+      className="flex flex-1 flex-col"
+      onKeyDown={(e) => {
+        // 마지막 단계 전에는 입력란에서 Enter 가 전체 제출(단계 건너뛰기) 대신 다음 단계로 이동
+        if (e.key === "Enter" && step < 3 && (e.target as HTMLElement).tagName === "INPUT") {
+          e.preventDefault();
+          setStep((s) => s + 1);
+        }
+      }}
+    >
       {/* 진행 표시 */}
       <ol className="mb-8 flex items-center gap-2" aria-label="진행 단계">
         {STEPS.map((label, i) => (
@@ -65,7 +75,7 @@ export function OnboardingWizard({
             >
               {i < step ? <Check size={13} aria-hidden /> : i + 1}
             </span>
-            <span className={cn("text-[11px]", i === step ? "font-semibold text-ink" : "text-muted")}>
+            <span className={cn("text-[0.6875rem]", i === step ? "font-semibold text-ink" : "text-muted")}>
               {label}
             </span>
           </li>
@@ -87,7 +97,7 @@ export function OnboardingWizard({
             <label
               key={t}
               className={cn(
-                "flex cursor-pointer items-center gap-2.5 rounded-md border px-4 py-3.5 text-[15px] font-medium",
+                "flex cursor-pointer items-center gap-2.5 rounded-md border px-4 py-3.5 text-[0.9375rem] font-medium",
                 userType === t
                   ? "border-primary bg-primary/5 text-primary"
                   : "border-hairline bg-surface text-body hover:border-muted"
@@ -143,7 +153,7 @@ export function OnboardingWizard({
               <label
                 key={opt}
                 className={cn(
-                  "cursor-pointer rounded-pill border px-4 py-2 text-sm font-medium",
+                  "cursor-pointer rounded-pill border px-4 py-2 text-sm font-medium has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary has-[:focus-visible]:ring-offset-2",
                   on
                     ? "border-primary bg-primary text-white"
                     : "border-hairline bg-surface text-body hover:border-muted"
@@ -178,7 +188,7 @@ export function OnboardingWizard({
               key={n.name}
               className="flex items-center justify-between rounded-md border border-hairline bg-surface px-4 py-3.5"
             >
-              <span className="text-[15px] font-medium text-ink">{n.label}</span>
+              <span className="text-[0.9375rem] font-medium text-ink">{n.label}</span>
               <input
                 type="checkbox"
                 name={n.name}

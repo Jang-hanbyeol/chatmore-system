@@ -89,7 +89,7 @@ export function LoginForm() {
         type="button"
         disabled
         title="학교 계정 연동 예정"
-        className="flex h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-md border border-hairline bg-soft text-[15px] font-semibold text-muted"
+        className="flex h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-md border border-hairline bg-soft text-[0.9375rem] font-semibold text-muted"
       >
         <School size={16} aria-hidden /> 학교 계정으로 로그인 (연동 예정)
       </button>
@@ -129,7 +129,7 @@ export function LoginForm() {
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[11px] text-muted">
+        <p className="mt-2 text-[0.6875rem] text-muted">
           버튼을 누르면 입력창에 계정 정보가 채워집니다.
         </p>
       </div>

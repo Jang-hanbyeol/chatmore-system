@@ -24,7 +24,7 @@ export default async function FeedbackPage({
     <div className="mx-auto max-w-3xl space-y-6 p-4 md:p-8">
       <header>
         <h1 className="text-2xl font-semibold text-ink">오류 신고·문의</h1>
-        <p className="mt-1.5 text-[15px] text-body">
+        <p className="mt-1.5 text-[0.9375rem] text-body">
           잘못된 정보나 서비스 오류를 알려주시면 답변 품질 개선에 활용됩니다.
         </p>
       </header>

@@ -1,4 +1,5 @@
 import { db } from "@/lib/database/db";
+import { PendingButton } from "@/components/ui/PendingButton";
 import { updateReportStatus } from "@/lib/actions/admin";
 import { StatusBadge } from "@/components/ui/Badge";
 import { inputCls } from "@/components/ui/Field";
@@ -89,9 +90,9 @@ export default async function AdminReportsPage({
                   <span className="block text-xs font-semibold text-muted">관리자 메모</span>
                   <input name="adminMemo" defaultValue={r.adminMemo ?? ""} className={`${inputCls()} mt-1 h-10`} />
                 </label>
-                <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-active">
+                <PendingButton className="h-10 rounded-md bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-active disabled:opacity-60">
                   저장
-                </button>
+                </PendingButton>
               </form>
             </section>
           ))}

@@ -129,13 +129,13 @@ export default async function AdminDashboardPage() {
 
       {/* 차트 */}
       <div className="grid gap-4 xl:grid-cols-2">
-        <section className="rounded-lg border border-hairline bg-surface p-5">
+        <section className="min-w-0 rounded-lg border border-hairline bg-surface p-5">
           <h2 className="font-semibold text-ink">일별 질문 추이 (최근 14일)</h2>
           <div className="mt-4">
             <TrendBars title="일별 질문 추이" data={trend} />
           </div>
         </section>
-        <section className="rounded-lg border border-hairline bg-surface p-5">
+        <section className="min-w-0 rounded-lg border border-hairline bg-surface p-5">
           <h2 className="font-semibold text-ink">카테고리별 질문 비율</h2>
           <div className="mt-5">
             {categoryShare.length === 0 ? (
@@ -149,7 +149,7 @@ export default async function AdminDashboardPage() {
 
       {/* 최근 활동 */}
       <div className="grid gap-4 xl:grid-cols-2">
-        <section className="rounded-lg border border-hairline bg-surface">
+        <section className="min-w-0 rounded-lg border border-hairline bg-surface">
           <header className="flex items-center justify-between border-b border-hairline-soft px-5 py-3.5">
             <h2 className="font-semibold text-ink">최근 질문</h2>
             <Link href="/admin/questions" className="text-sm text-primary">전체 보기</Link>
@@ -168,7 +168,7 @@ export default async function AdminDashboardPage() {
           )}
         </section>
 
-        <section className="rounded-lg border border-hairline bg-surface">
+        <section className="min-w-0 rounded-lg border border-hairline bg-surface">
           <header className="flex items-center justify-between border-b border-hairline-soft px-5 py-3.5">
             <h2 className="font-semibold text-ink">부정 평가·신고</h2>
             <Link href="/admin/answers" className="text-sm text-primary">답변 품질 관리</Link>
@@ -204,7 +204,7 @@ export default async function AdminDashboardPage() {
           </ul>
         </section>
 
-        <section className="rounded-lg border border-hairline bg-surface xl:col-span-2">
+        <section className="min-w-0 rounded-lg border border-hairline bg-surface xl:col-span-2">
           <header className="border-b border-hairline-soft px-5 py-3.5">
             <h2 className="font-semibold text-ink">관리자 활동 기록</h2>
           </header>

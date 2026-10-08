@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@/styles/globals.css";
+import { getActiveUser } from "@/lib/auth/guards";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
@@ -26,9 +27,17 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // 접근성 설정을 서버 렌더 단계에서 적용 (하이드레이션 후 적용하면 매번 기본 크기로 깜빡임).
+  // getActiveUser 는 요청 단위 캐시라 사용자 레이아웃과 조회를 공유한다.
+  const user = await getActiveUser();
   return (
-    <html lang="ko">
+    <html
+      lang="ko"
+      data-font-size={user?.fontSize ?? "default"}
+      data-contrast={user?.highContrast ? "high" : "default"}
+      data-motion={user?.reduceMotion ? "reduced" : "default"}
+    >
       <body>
         <a href="#main" className="skip-nav">
           본문으로 건너뛰기

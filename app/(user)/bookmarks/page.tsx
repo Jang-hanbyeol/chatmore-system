@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import Link from "next/link";
 import { Bookmark as BookmarkIcon, Trash2 } from "lucide-react";
 import { db } from "@/lib/database/db";
@@ -90,7 +91,7 @@ export default async function BookmarksPage({
                     <Badge tone="blue">{TYPE_LABELS[b.itemType] ?? b.itemType}</Badge>
                     {b.meta && b.itemType === "notice" && <Badge>{b.meta}</Badge>}
                   </div>
-                  <p className="mt-1 truncate text-[15px] font-medium text-ink">{b.title}</p>
+                  <p className="mt-1 truncate text-[0.9375rem] font-medium text-ink">{b.title}</p>
                   <p className="text-xs text-muted">{relativeTime(b.createdAt)} 저장</p>
                 </div>
               </>
@@ -105,13 +106,13 @@ export default async function BookmarksPage({
                   <div className="flex min-w-0 flex-1 items-center gap-3">{inner}</div>
                 )}
                 <form action={removeBookmark.bind(null, b.id)}>
-                  <button
-                    type="submit"
-                    aria-label="즐겨찾기에서 삭제"
-                    className="flex h-9 w-9 items-center justify-center rounded-md text-muted hover:bg-down/10 hover:text-down"
+                  <ConfirmSubmit
+                    confirmMessage={`「${b.title}」을(를) 즐겨찾기에서 삭제하시겠습니까?`}
+                    ariaLabel={`${b.title} 즐겨찾기에서 삭제`}
+                    className="flex h-9 w-9 items-center justify-center rounded-md text-muted hover:bg-down/10 hover:text-down disabled:opacity-50"
                   >
                     <Trash2 size={15} aria-hidden />
-                  </button>
+                  </ConfirmSubmit>
                 </form>
               </li>
             );

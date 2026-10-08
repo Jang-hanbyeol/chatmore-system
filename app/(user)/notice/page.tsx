@@ -46,12 +46,13 @@ export default async function NoticeListPage({
     <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-8">
       <header>
         <h1 className="text-2xl font-semibold text-ink">공지사항</h1>
-        <p className="mt-1.5 text-[15px] text-body">
+        <p className="mt-1.5 text-[0.9375rem] text-body">
           대학의 주요 공지를 확인하고 궁금한 점은 바로 질문하세요.
         </p>
       </header>
 
       <form action="/notice" method="get" role="search" className="flex gap-2">
+        {category && <input type="hidden" name="category" value={category} />}
         <label htmlFor="q" className="sr-only">공지 검색</label>
         <input
           id="q"
@@ -71,7 +72,8 @@ export default async function NoticeListPage({
 
       <nav aria-label="공지 카테고리" className="flex gap-1.5 overflow-x-auto pb-1 thin-scroll">
         <Link
-          href="/notice"
+          href={q ? `/notice?q=${encodeURIComponent(q)}` : "/notice"}
+          aria-current={!category ? "page" : undefined}
           className={cn(
             "shrink-0 rounded-md px-3.5 py-2 text-sm font-medium",
             !category ? "bg-ink text-white" : "bg-strong text-body hover:text-ink"
@@ -82,7 +84,8 @@ export default async function NoticeListPage({
         {categories.map((c) => (
           <Link
             key={c.category}
-            href={`/notice?category=${encodeURIComponent(c.category)}`}
+            href={`/notice?category=${encodeURIComponent(c.category)}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+            aria-current={category === c.category ? "page" : undefined}
             className={cn(
               "shrink-0 rounded-md px-3.5 py-2 text-sm font-medium",
               category === c.category
@@ -117,7 +120,7 @@ export default async function NoticeListPage({
                     {dday && dday !== "마감됨" && <Badge tone="amber">{dday}</Badge>}
                     {dday === "마감됨" && <Badge>마감됨</Badge>}
                   </div>
-                  <p className="mt-1 text-[15px] font-medium text-ink group-hover:text-primary">
+                  <p className="mt-1 text-[0.9375rem] font-medium text-ink group-hover:text-primary">
                     {n.title}
                   </p>
                   <p className="mt-0.5 line-clamp-1 text-sm text-body">{n.summary}</p>

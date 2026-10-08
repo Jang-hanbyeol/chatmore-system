@@ -73,7 +73,7 @@ export function ConversationRow({
         ) : (
           <Link href={`/chat/${c.id}`} className="group block">
             <div className="flex items-center gap-2">
-              <span className="truncate text-[15px] font-semibold text-ink group-hover:text-primary">
+              <span className="truncate text-[0.9375rem] font-semibold text-ink group-hover:text-primary">
                 {title}
               </span>
               {c.category && <Badge tone="blue">{c.category}</Badge>}

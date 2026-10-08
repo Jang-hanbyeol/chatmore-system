@@ -27,6 +27,7 @@ import { Badge, StatusBadge } from "@/components/ui/Badge";
 import { NOT_HELPFUL_REASONS } from "@/lib/validation/schemas";
 import { cn, ddayLabel, formatTime } from "@/lib/utils";
 import { TimeAgo } from "@/components/ui/TimeAgo";
+import { useDialog } from "@/components/ui/useDialog";
 
 export type UiMessage = {
   id: string;
@@ -83,6 +84,8 @@ export function ChatScreen({
   const [toast, setToast] = useState("");
   const [feedbackFor, setFeedbackFor] = useState<string | null>(null); // 부정 평가 사유 모달
   const [sheetOpen, setSheetOpen] = useState(false); // 모바일 출처 바텀시트
+  const sheetRef = useDialog(sheetOpen, () => setSheetOpen(false));
+  const feedbackRef = useDialog(feedbackFor !== null, () => setFeedbackFor(null));
   const [feedbackDone, setFeedbackDone] = useState<Record<string, string>>({});
   const stopRef = useRef(false);
   const inFlightRef = useRef(false);
@@ -254,14 +257,14 @@ export function ChatScreen({
                       )}
                       <span
                         className={cn(
-                          "truncate text-[13px] font-medium",
+                          "truncate text-[0.8125rem] font-medium",
                           c.id === conversationId ? "text-primary" : "text-ink"
                         )}
                       >
                         {c.title}
                       </span>
                     </span>
-                    <span className="text-[11px] text-muted"><TimeAgo date={c.updatedAt} /></span>
+                    <span className="text-[0.6875rem] text-muted"><TimeAgo date={c.updatedAt} /></span>
                   </Link>
                 </li>
               ))}
@@ -285,7 +288,7 @@ export function ChatScreen({
               <p className="truncate text-sm font-semibold text-ink">
                 {activeTitle ?? "새 대화"}
               </p>
-              <p className="text-[11px] text-muted">AI 대학 생활정보 챗봇</p>
+              <p className="text-[0.6875rem] text-muted">AI 대학 생활정보 챗봇</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5">
@@ -328,10 +331,10 @@ export function ChatScreen({
           {messages.map((m) =>
             m.role === "user" ? (
               <div key={m.id} className="flex flex-col items-end gap-1">
-                <p className="max-w-[85%] whitespace-pre-wrap rounded-lg rounded-br-sm bg-primary px-4 py-2.5 text-[15px] leading-relaxed text-white">
+                <p className="max-w-[85%] whitespace-pre-wrap rounded-lg rounded-br-sm bg-primary px-4 py-2.5 text-[0.9375rem] leading-relaxed text-white">
                   {m.content}
                 </p>
-                <span className="flex items-center gap-0.5 text-[11px] text-muted">
+                <span className="flex items-center gap-0.5 text-[0.6875rem] text-muted">
                   {formatTime(m.createdAt)}
                   <button
                     type="button"
@@ -376,18 +379,18 @@ export function ChatScreen({
                       <p className="mb-2 flex flex-wrap items-center gap-1.5">
                         <Badge tone="amber">데모 응답</Badge>
                         {m.dataCheckedAt && (
-                          <span className="text-[11px] text-muted">
+                          <span className="text-[0.6875rem] text-muted">
                             데이터 기준일 {m.dataCheckedAt}
                           </span>
                         )}
                         {m.sources.length > 0 && (
-                          <span className="text-[11px] text-muted">
+                          <span className="text-[0.6875rem] text-muted">
                             · 출처 {m.sources.length}개
                           </span>
                         )}
                       </p>
                     )}
-                    <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-ink">
+                    <p className="whitespace-pre-wrap text-[0.9375rem] leading-relaxed text-ink">
                       {m.content}
                     </p>
                   </div>
@@ -530,7 +533,7 @@ export function ChatScreen({
                     setPending(false);
                     setToast("답변 생성을 중지했습니다.");
                   }}
-                  className="inline-flex items-center gap-1 rounded-sm bg-strong px-2 py-1 text-[11px] font-semibold text-ink hover:bg-hairline"
+                  className="inline-flex items-center gap-1 rounded-sm bg-strong px-2 py-1 text-[0.6875rem] font-semibold text-ink hover:bg-hairline"
                 >
                   <Square size={10} aria-hidden /> 중지
                 </button>
@@ -565,7 +568,7 @@ export function ChatScreen({
                 }
               }}
               placeholder="학사, 장학금, 비교과, 대학 생활정보를 질문해 보세요."
-              className="max-h-32 min-h-[46px] w-full resize-none rounded-md border border-hairline bg-surface px-4 py-2.5 text-[15px] text-ink placeholder:text-muted-soft focus:border-primary focus:outline-none"
+              className="max-h-32 min-h-[46px] w-full resize-none rounded-md border border-hairline bg-surface px-4 py-2.5 text-[0.9375rem] text-ink placeholder:text-muted-soft focus:border-primary focus:outline-none"
             />
             {input && (
               <button
@@ -586,7 +589,7 @@ export function ChatScreen({
               <SendHorizonal size={18} aria-hidden />
             </button>
           </div>
-          <p className="mt-1.5 flex items-center justify-between text-[11px] text-muted">
+          <p className="mt-1.5 flex items-center justify-between text-[0.6875rem] text-muted">
             <span>주민등록번호, 비밀번호, 계좌번호 등 민감한 개인정보는 입력하지 마세요.</span>
             <span aria-live="polite">{input.length}/{MAX_LEN}</span>
           </p>
@@ -606,7 +609,7 @@ export function ChatScreen({
                   </li>
                 ))}
               </ul>
-              <p className="mt-4 rounded-md bg-soft px-3 py-2.5 text-[11px] leading-relaxed text-muted">
+              <p className="mt-4 rounded-md bg-soft px-3 py-2.5 text-[0.6875rem] leading-relaxed text-muted">
                 Chatmore의 답변은 제공된 대학 자료를 기반으로 생성됩니다. 중요한
                 신청 및 행정 업무는 반드시 공식 원문과 담당 부서를 확인해 주세요.
               </p>
@@ -625,11 +628,12 @@ export function ChatScreen({
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="답변 출처">
           <button
             type="button"
+            tabIndex={-1}
             aria-label="닫기"
             className="absolute inset-0 bg-black/40"
             onClick={() => setSheetOpen(false)}
           />
-          <div className="absolute inset-x-0 bottom-0 max-h-[75dvh] animate-slideUp overflow-y-auto rounded-t-lg bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+          <div ref={sheetRef} className="absolute inset-x-0 bottom-0 max-h-[75dvh] animate-slideUp overflow-y-auto rounded-t-lg bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-hairline" aria-hidden />
             <div className="flex items-center justify-between">
               <h2 className="text-base font-semibold text-ink">답변 출처</h2>
@@ -658,11 +662,12 @@ export function ChatScreen({
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-label="부정 평가 사유">
           <button
             type="button"
+            tabIndex={-1}
             aria-label="닫기"
             className="absolute inset-0 bg-black/40"
             onClick={() => setFeedbackFor(null)}
           />
-          <div className="relative w-full max-w-sm rounded-t-lg bg-surface p-5 sm:rounded-lg">
+          <div ref={feedbackRef} className="relative w-full max-w-sm rounded-t-lg bg-surface p-5 sm:rounded-lg">
             <h2 className="text-base font-semibold text-ink">
               어떤 점이 아쉬웠나요?
             </h2>
@@ -706,7 +711,7 @@ function SourceRow({ source, detailed }: { source: SourceItem; detailed?: boolea
       <div className="flex items-start justify-between gap-2">
         <span className="min-w-0">
           <span className="block truncate text-xs font-semibold text-ink">{source.title}</span>
-          <span className="mt-0.5 block text-[11px] text-muted">
+          <span className="mt-0.5 block text-[0.6875rem] text-muted">
             {source.department} · 게시일 {source.publishedAt ?? "-"}
           </span>
         </span>
@@ -718,7 +723,7 @@ function SourceRow({ source, detailed }: { source: SourceItem; detailed?: boolea
         {source.status && <StatusBadge status={source.status} />}
       </div>
       {detailed && source.excerpt && (
-        <p className="mt-1.5 line-clamp-2 text-[11px] leading-relaxed text-body">
+        <p className="mt-1.5 line-clamp-2 text-[0.6875rem] leading-relaxed text-body">
           {source.excerpt}
         </p>
       )}

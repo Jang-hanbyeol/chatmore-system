@@ -1,4 +1,5 @@
 import { db } from "@/lib/database/db";
+import { PendingButton } from "@/components/ui/PendingButton";
 import { updateUserStatus } from "@/lib/actions/admin";
 import { StatusBadge } from "@/components/ui/Badge";
 import { formatDate } from "@/lib/utils";
@@ -59,7 +60,7 @@ export default async function AdminUsersPage() {
                   <p className="font-medium text-ink">
                     {u.name}
                     {u.isDemo && (
-                      <span className="ml-1.5 rounded-sm bg-strong px-1.5 py-0.5 text-[10px] font-bold text-muted">
+                      <span className="ml-1.5 rounded-sm bg-strong px-1.5 py-0.5 text-[0.625rem] font-bold text-muted">
                         DEMO
                       </span>
                     )}
@@ -86,9 +87,9 @@ export default async function AdminUsersPage() {
                       <option value="inactive">inactive</option>
                       <option value="suspended">suspended</option>
                     </select>
-                    <button type="submit" className="rounded-md bg-strong px-2.5 py-1.5 text-xs font-semibold text-ink hover:bg-hairline">
+                    <PendingButton className="rounded-md bg-strong px-2.5 py-1.5 text-xs font-semibold text-ink hover:bg-hairline disabled:opacity-60">
                       저장
-                    </button>
+                    </PendingButton>
                   </form>
                 </td>
               </tr>

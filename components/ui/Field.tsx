@@ -1,5 +1,5 @@
+import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import type { ReactNode } from "react";
 
 /** 폼 필드 래퍼: label + control + error 를 접근성 있게 연결 */
 export function Field({
@@ -17,6 +17,14 @@ export function Field({
   hint?: string;
   children: ReactNode;
 }) {
+  // 입력 요소에 오류·도움말을 연결 (스크린리더가 어떤 칸이 틀렸는지 읽도록)
+  const describedBy = error ? `${htmlFor}-error` : hint ? `${htmlFor}-hint` : undefined;
+  const control = isValidElement(children)
+    ? cloneElement(children as ReactElement<Record<string, unknown>>, {
+        "aria-invalid": error ? true : undefined,
+        "aria-describedby": describedBy,
+      })
+    : children;
   return (
     <div className="space-y-1.5">
       <label htmlFor={htmlFor} className="block text-sm font-semibold text-ink">
@@ -27,8 +35,12 @@ export function Field({
           </span>
         )}
       </label>
-      {children}
-      {hint && !error && <p className="text-xs text-muted">{hint}</p>}
+      {control}
+      {hint && !error && (
+        <p id={`${htmlFor}-hint`} className="text-xs text-muted">
+          {hint}
+        </p>
+      )}
       {error && (
         <p id={`${htmlFor}-error`} role="alert" className="text-sm text-down">
           {error}

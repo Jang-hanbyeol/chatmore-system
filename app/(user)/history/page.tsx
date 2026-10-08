@@ -73,6 +73,7 @@ export default async function HistoryPage({
 
       <div className="flex flex-wrap items-center gap-3">
         <form action="/history" method="get" role="search" className="flex flex-1 gap-2">
+          {filter && <input type="hidden" name="filter" value={filter} />}
           <label htmlFor="q" className="sr-only">대화 검색</label>
           <input
             id="q"
@@ -91,7 +92,8 @@ export default async function HistoryPage({
         </form>
         <nav aria-label="필터" className="flex gap-1.5">
           <Link
-            href="/history"
+            href={q ? `/history?q=${encodeURIComponent(q)}` : "/history"}
+            aria-current={!filter ? "page" : undefined}
             className={cn(
               "rounded-md px-3.5 py-2 text-sm font-medium",
               !filter ? "bg-ink text-white" : "bg-strong text-body"
@@ -100,7 +102,8 @@ export default async function HistoryPage({
             전체
           </Link>
           <Link
-            href="/history?filter=bookmarked"
+            href={`/history?filter=bookmarked${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+            aria-current={filter === "bookmarked" ? "page" : undefined}
             className={cn(
               "rounded-md px-3.5 py-2 text-sm font-medium",
               filter === "bookmarked" ? "bg-ink text-white" : "bg-strong text-body"

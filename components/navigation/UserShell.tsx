@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useDialog } from "@/components/ui/useDialog";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
@@ -73,12 +74,10 @@ export function UserShell({
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => setDrawerOpen(false), [pathname]);
+  const drawerRef = useDialog(drawerOpen, () => setDrawerOpen(false));
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setDrawerOpen(false);
-    document.addEventListener("keydown", onKey);
     document.body.style.overflow = drawerOpen ? "hidden" : "";
     return () => {
-      document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
   }, [drawerOpen]);
@@ -101,7 +100,7 @@ export function UserShell({
               <item.icon size={17} aria-hidden />
               <span className="flex-1">{item.label}</span>
               {item.badgeKey === "unread" && unreadCount > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-pill bg-primary px-1.5 text-[11px] font-bold text-white">
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-pill bg-primary px-1.5 text-[0.6875rem] font-bold text-white">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
@@ -191,11 +190,12 @@ export function UserShell({
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="메뉴">
           <button
             type="button"
+            tabIndex={-1}
             aria-label="메뉴 닫기"
             className="absolute inset-0 bg-black/40"
             onClick={() => setDrawerOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 flex w-72 flex-col bg-surface shadow-lift">
+          <div ref={drawerRef} className="absolute inset-y-0 left-0 flex w-72 flex-col bg-surface shadow-lift">
             <div className="flex h-14 items-center justify-between border-b border-hairline-soft px-4">
               <Logo variant="horizontal" height={24} />
               <button

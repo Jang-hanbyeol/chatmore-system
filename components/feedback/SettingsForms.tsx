@@ -54,7 +54,7 @@ function Toggle({
   return (
     <label className="flex items-center justify-between gap-4 rounded-md border border-hairline px-4 py-3.5">
       <span>
-        <span className="block text-[15px] font-medium text-ink">{label}</span>
+        <span className="block text-[0.9375rem] font-medium text-ink">{label}</span>
         {desc && <span className="text-xs text-muted">{desc}</span>}
       </span>
       <input
@@ -118,7 +118,7 @@ export function ProfileForm({
                 defaultChecked={user.interests.includes(opt)}
                 className="peer sr-only"
               />
-              <span className="inline-block rounded-pill border border-hairline px-3.5 py-1.5 text-sm text-body peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white">
+              <span className="inline-block rounded-pill border border-hairline px-3.5 py-1.5 text-sm text-body peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2">
                 {opt}
               </span>
             </label>

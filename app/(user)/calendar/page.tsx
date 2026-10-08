@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ConfirmSubmit } from "@/components/ui/ConfirmSubmit";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { db } from "@/lib/database/db";
@@ -174,7 +175,7 @@ export default async function CalendarPage({
                       <li
                         key={e.id}
                         className={cn(
-                          "truncate rounded-sm px-1.5 py-0.5 text-[10px] font-medium leading-tight",
+                          "truncate rounded-sm px-1.5 py-0.5 text-[0.625rem] font-medium leading-tight",
                           e.isDeadline
                             ? "bg-down/10 text-down"
                             : e.category === "개인"
@@ -187,7 +188,7 @@ export default async function CalendarPage({
                       </li>
                     ))}
                     {eventsOn(day).length > 3 && (
-                      <li className="px-1.5 text-[10px] text-muted">
+                      <li className="px-1.5 text-[0.625rem] text-muted">
                         +{eventsOn(day).length - 3}건
                       </li>
                     )}
@@ -217,13 +218,13 @@ export default async function CalendarPage({
                     {formatShortDate(e.startAt)}
                   </span>
                   {e.endAt && (
-                    <span className="block text-[11px] text-muted">
+                    <span className="block text-[0.6875rem] text-muted">
                       ~{formatShortDate(e.endAt)}
                     </span>
                   )}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[15px] font-medium text-ink">
+                  <span className="block truncate text-[0.9375rem] font-medium text-ink">
                     {e.title}
                   </span>
                   {e.department && (
@@ -234,13 +235,13 @@ export default async function CalendarPage({
                 {e.isDeadline && <Badge tone="red">마감</Badge>}
                 {e.userId && (
                   <form action={deletePersonalEvent.bind(null, e.id)}>
-                    <button
-                      type="submit"
-                      aria-label={`${e.title} 개인 일정 삭제`}
-                      className="flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-down/10 hover:text-down"
+                    <ConfirmSubmit
+                      confirmMessage={`「${e.title}」 개인 일정을 삭제하시겠습니까?`}
+                      ariaLabel={`${e.title} 개인 일정 삭제`}
+                      className="flex h-8 w-8 items-center justify-center rounded-md text-muted hover:bg-down/10 hover:text-down disabled:opacity-50"
                     >
                       <Trash2 size={14} aria-hidden />
-                    </button>
+                    </ConfirmSubmit>
                   </form>
                 )}
               </li>

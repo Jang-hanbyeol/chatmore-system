@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { safeHttpUrl, sanitizeNoticeHtml } from "@/lib/utils/sanitize";
 import { ArrowLeft, ExternalLink, MessageCircleMore } from "lucide-react";
 import { db } from "@/lib/database/db";
 import { requireOnboardedUser } from "@/lib/auth/guards";
@@ -118,12 +119,12 @@ export default async function NoticeDetailPage({
         </p>
         <div
           className="prose-basic mt-4"
-          // 관리자 페이지에서 작성된 신뢰된 콘텐츠만 렌더링합니다.
-          dangerouslySetInnerHTML={{ __html: notice.content }}
+          // 관리자 작성 HTML도 허용 태그만 남기고 정화한 뒤 렌더링
+          dangerouslySetInnerHTML={{ __html: sanitizeNoticeHtml(notice.content) }}
         />
-        {notice.sourceUrl && (
+        {safeHttpUrl(notice.sourceUrl) && (
           <a
-            href={notice.sourceUrl}
+            href={safeHttpUrl(notice.sourceUrl)!}
             target="_blank"
             rel="noreferrer noopener"
             className="mt-5 inline-flex items-center gap-2 rounded-md border border-hairline px-4 py-2.5 text-sm font-semibold text-ink hover:border-primary"

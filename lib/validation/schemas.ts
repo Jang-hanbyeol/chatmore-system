@@ -63,6 +63,29 @@ export const NOT_HELPFUL_REASONS = [
 
 export const REPORT_TYPES = ["정보 오류", "서비스 오류", "정보 요청", "기타"] as const;
 
+
+/** http/https 링크만 허용 (javascript: 등 스킴 차단) */
+const httpUrl = (msg: string) =>
+  z
+    .string()
+    .trim()
+    .url(msg)
+    .refine((u) => /^https?:\/\//i.test(u), msg);
+
+/** YYYY-MM-DD (실재하는 날짜만 — 2026-02-30 같은 값 거부) */
+export const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+function isRealDate(d: string): boolean {
+  const t = new Date(`${d}T00:00:00Z`);
+  return !Number.isNaN(t.getTime()) && t.toISOString().startsWith(d);
+}
+export const isoDate = z
+  .string()
+  .regex(DATE_RE, "날짜 형식이 올바르지 않습니다.")
+  .refine(isRealDate, "날짜 형식이 올바르지 않습니다.");
+const optionalDate = isoDate.optional().or(z.literal(""));
+const endNotBeforeStart = (v: { startAt?: string; endAt?: string }) =>
+  !v.startAt || !v.endAt || v.endAt >= v.startAt;
+
 export const loginSchema = z.object({
   email: z.string().trim().email("올바른 이메일을 입력해 주세요."),
   password: z.string().min(1, "비밀번호를 입력해 주세요."),
@@ -74,7 +97,7 @@ export const onboardingSchema = z.object({
   department: z.string().trim().max(50).optional().or(z.literal("")),
   grade: z.string().trim().max(20).optional().or(z.literal("")),
   admissionYear: z.string().trim().max(10).optional().or(z.literal("")),
-  interests: z.array(z.string()).max(12),
+  interests: z.array(z.enum(INTEREST_OPTIONS)).max(12),
   notifySchedule: z.boolean(),
   notifyScholarship: z.boolean(),
   notifyProgram: z.boolean(),
@@ -109,12 +132,12 @@ export const infoSourceSchema = z.object({
   department: z.string().trim().min(1, "담당 부서를 입력해 주세요.").max(50),
   targetUsers: z.string().trim().max(100),
   keywords: z.string().trim().max(300).optional().or(z.literal("")),
-  sourceUrl: z.string().trim().url("올바른 URL을 입력해 주세요.").optional().or(z.literal("")),
-  startAt: z.string().optional().or(z.literal("")),
-  endAt: z.string().optional().or(z.literal("")),
+  sourceUrl: httpUrl("http 또는 https로 시작하는 URL을 입력해 주세요.").optional().or(z.literal("")),
+  startAt: optionalDate,
+  endAt: optionalDate,
   dataStatus: z.enum(DATA_STATUSES),
   isAiSearchable: z.boolean(),
-});
+}).refine(endNotBeforeStart, { message: "종료일이 시작일보다 빠릅니다.", path: ["endAt"] });
 
 export const noticeSchema = z.object({
   title: z.string().trim().min(1, "제목을 입력해 주세요.").max(200),
@@ -123,12 +146,12 @@ export const noticeSchema = z.object({
   content: z.string().trim().min(1, "내용을 입력해 주세요."),
   department: z.string().trim().min(1).max(50),
   targetUsers: z.string().trim().max(100),
-  startAt: z.string().optional().or(z.literal("")),
-  endAt: z.string().optional().or(z.literal("")),
-  sourceUrl: z.string().trim().url("올바른 URL").optional().or(z.literal("")),
+  startAt: optionalDate,
+  endAt: optionalDate,
+  sourceUrl: httpUrl("http 또는 https로 시작하는 URL을 입력해 주세요.").optional().or(z.literal("")),
   status: z.enum(["draft", "published", "archived"]),
   isPinned: z.boolean(),
-});
+}).refine(endNotBeforeStart, { message: "종료일이 시작일보다 빠릅니다.", path: ["endAt"] });
 
 export const settingsSchema = z.object({
   answerLength: z.enum(["simple", "detailed"]),
@@ -141,3 +164,26 @@ export const settingsSchema = z.object({
   reduceMotion: z.boolean(),
   language: z.enum(["ko", "en"]),
 });
+
+export const bookmarkSchema = z.object({
+  itemType: z.enum(["answer", "notice", "schedule", "source", "question"]),
+  itemId: z.string().trim().min(1).max(100),
+  title: z.string().trim().min(1).max(200),
+  meta: z.string().max(500).optional(),
+});
+
+export const profileSchema = onboardingSchema.pick({
+  userType: true,
+  college: true,
+  department: true,
+  grade: true,
+  admissionYear: true,
+  interests: true,
+});
+
+export const personalEventSchema = z.object({
+  title: z.string().trim().min(1, "제목을 입력해 주세요.").max(100),
+  date: isoDate,
+});
+
+export const conversationTitleSchema = z.string().trim().min(1).max(100);

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { safeHttpUrl } from "@/lib/utils/url";
 import {
   AlertTriangle,
   Bookmark,
@@ -83,6 +84,7 @@ export function ChatScreen({
   const [sheetOpen, setSheetOpen] = useState(false); // 모바일 출처 바텀시트
   const [feedbackDone, setFeedbackDone] = useState<Record<string, string>>({});
   const stopRef = useRef(false);
+  const inFlightRef = useRef(false);
   const sentInitial = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -109,6 +111,12 @@ export function ChatScreen({
   async function ask(raw: string) {
     const question = raw.trim().slice(0, MAX_LEN);
     if (!question || pending) return;
+    // 중지 후에도 이전 요청이 서버에서 끝나기 전에는 새 질문을 막는다 (대화 분리 방지)
+    if (inFlightRef.current) {
+      setToast("이전 질문을 마무리하는 중입니다. 잠시 후 다시 시도해 주세요.");
+      return;
+    }
+    inFlightRef.current = true;
     stopRef.current = false;
     setInput("");
     const tempId = `tmp-${Date.now()}`;
@@ -131,14 +139,19 @@ export function ChatScreen({
         conversationId: conversationId ?? undefined,
         message: question,
       });
-      if (stopRef.current) return; // 사용자가 중지
       if (!res.ok) {
-        setToast(res.error);
+        if (!stopRef.current) {
+          setToast(res.error);
+          setInput((cur) => cur || question); // 실패한 질문을 입력창에 복원
+        }
         return;
       }
-      if (!conversationId) {
-        setConversationId(res.conversationId);
-        window.history.replaceState(null, "", `/chat/${res.conversationId}`);
+      const isNew = !conversationId;
+      if (isNew) setConversationId(res.conversationId);
+      if (stopRef.current) {
+        // 사용자가 중지: 답변은 표시하지 않되, 서버에 생긴 대화는 이어서 사용
+        if (isNew) router.replace(`/chat/${res.conversationId}`, { scroll: false });
+        return;
       }
       const r = res.response;
       setMessages((m) => [
@@ -156,10 +169,17 @@ export function ChatScreen({
           createdAt: r.generatedAt,
         },
       ]);
-      router.refresh(); // 대화 목록 갱신
+      // 새 대화는 라우터로 이동(history.replaceState + refresh 는 ?q= 페이지를 다시
+      // 마운트해 같은 질문을 한 번 더 보냈음). 기존 대화는 목록만 갱신.
+      if (isNew) router.replace(`/chat/${res.conversationId}`, { scroll: false });
+      else router.refresh();
     } catch {
-      setToast("네트워크 오류가 발생했습니다. 연결을 확인한 뒤 다시 시도해 주세요.");
+      if (!stopRef.current) {
+        setToast("네트워크 오류가 발생했습니다. 연결을 확인한 뒤 다시 시도해 주세요.");
+        setInput((cur) => cur || question);
+      }
     } finally {
+      inFlightRef.current = false;
       setPending(false);
       inputRef.current?.focus();
     }
@@ -703,10 +723,11 @@ function SourceRow({ source, detailed }: { source: SourceItem; detailed?: boolea
       )}
     </>
   );
-  if (source.sourceUrl) {
+  const href = safeHttpUrl(source.sourceUrl);
+  if (href) {
     return (
       <a
-        href={source.sourceUrl}
+        href={href}
         target="_blank"
         rel="noreferrer noopener"
         className="block rounded-md border border-hairline p-3 hover:border-primary"

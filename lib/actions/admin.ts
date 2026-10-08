@@ -71,7 +71,8 @@ export async function saveInfoSource(
     dataCheckedAt: new Date(),
   };
   if (id) {
-    await db.informationSource.update({ where: { id }, data });
+    const { count } = await db.informationSource.updateMany({ where: { id }, data });
+    if (count === 0) return { ok: false, message: "이미 삭제되었거나 존재하지 않는 항목입니다." };
     await log(adminId, "update", "information_source", id);
   } else {
     const created = await db.informationSource.create({ data });
@@ -83,8 +84,8 @@ export async function saveInfoSource(
 
 export async function deleteInfoSource(id: string) {
   const adminId = await requireAdminId();
-  await db.informationSource.delete({ where: { id } });
-  await log(adminId, "delete", "information_source", id);
+  const { count } = await db.informationSource.deleteMany({ where: { id: String(id) } });
+  if (count > 0) await log(adminId, "delete", "information_source", id);
   revalidatePath("/admin/data");
 }
 
@@ -122,7 +123,8 @@ export async function saveAdminNotice(
     endAt: parseDate(d.endAt || ""),
   };
   if (id) {
-    await db.notice.update({ where: { id }, data });
+    const { count } = await db.notice.updateMany({ where: { id }, data });
+    if (count === 0) return { ok: false, message: "이미 삭제되었거나 존재하지 않는 항목입니다." };
     await log(adminId, "update", "notice", id);
   } else {
     const created = await db.notice.create({ data });
@@ -135,8 +137,8 @@ export async function saveAdminNotice(
 
 export async function deleteAdminNotice(id: string) {
   const adminId = await requireAdminId();
-  await db.notice.delete({ where: { id } });
-  await log(adminId, "delete", "notice", id);
+  const { count } = await db.notice.deleteMany({ where: { id: String(id) } });
+  if (count > 0) await log(adminId, "delete", "notice", id);
   revalidatePath("/admin/notices");
   revalidatePath("/notice");
 }
@@ -150,11 +152,15 @@ export async function updateFeedbackStatus(formData: FormData) {
   const adminMemo = String(formData.get("adminMemo") ?? "");
   const assignee = String(formData.get("assignee") ?? "");
   if (!id || !(FEEDBACK_STATUSES as readonly string[]).includes(status)) return;
-  await db.feedback.update({
+  const { count } = await db.feedback.updateMany({
     where: { id },
-    data: { status, adminMemo: adminMemo || null, assignee: assignee || null },
+    data: {
+      status,
+      adminMemo: adminMemo.slice(0, 1000) || null,
+      assignee: assignee.slice(0, 50) || null,
+    },
   });
-  await log(adminId, "update_status", "feedback", id);
+  if (count > 0) await log(adminId, "update_status", "feedback", id);
   revalidatePath("/admin/answers");
   revalidatePath("/admin/feedback");
 }
@@ -167,11 +173,11 @@ export async function updateReportStatus(formData: FormData) {
   const status = String(formData.get("status") ?? "");
   const adminMemo = String(formData.get("adminMemo") ?? "");
   if (!id || !["new", "reviewing", "resolved", "closed"].includes(status)) return;
-  await db.report.update({
+  const { count } = await db.report.updateMany({
     where: { id },
-    data: { status, adminMemo: adminMemo || null },
+    data: { status, adminMemo: adminMemo.slice(0, 1000) || null },
   });
-  await log(adminId, "update_status", "report", id);
+  if (count > 0) await log(adminId, "update_status", "report", id);
   revalidatePath("/admin/reports");
 }
 
@@ -182,9 +188,10 @@ export async function updateUserStatus(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!id || !["active", "inactive", "suspended"].includes(status)) return;
-  await db.user.update({ where: { id }, data: { status } });
-  await log(adminId, "update_status", "user", id);
+  const { count } = await db.user.updateMany({ where: { id }, data: { status } });
+  if (count > 0) await log(adminId, "update_status", "user", id);
   revalidatePath("/admin/users");
+  revalidatePath("/admin");
 }
 
 /* ── 카테고리 ── */
@@ -196,18 +203,28 @@ export async function saveCategory(
   const adminId = await requireAdminId();
   const id = String(formData.get("id") ?? "");
   const name = String(formData.get("name") ?? "").trim();
-  const sortOrder = Number(formData.get("sortOrder") ?? 0);
+  const rawOrder = Number(formData.get("sortOrder") ?? 0);
+  const sortOrder = Number.isFinite(rawOrder)
+    ? Math.min(Math.max(Math.trunc(rawOrder), 0), 9999)
+    : 0;
   const isActive = formData.get("isActive") === "on";
   if (!name) return { ok: false, message: "카테고리 이름을 입력해 주세요." };
+  if (name.length > 30) return { ok: false, message: "카테고리 이름은 30자 이내로 입력해 주세요." };
+  const duplicate = await db.category.findFirst({
+    where: { name, ...(id ? { NOT: { id } } : {}) },
+    select: { id: true },
+  });
+  if (duplicate) return { ok: false, message: "같은 이름의 카테고리가 이미 있습니다." };
   if (id) {
-    await db.category.update({
+    const { count } = await db.category.updateMany({
       where: { id },
       data: { name, sortOrder, isActive },
     });
+    if (count === 0) return { ok: false, message: "이미 삭제되었거나 존재하지 않는 항목입니다." };
     await log(adminId, "update", "category", id);
   } else {
     const created = await db.category.create({
-      data: { name, slug: `cat-${Date.now()}`, sortOrder, isActive },
+      data: { name, slug: `cat-${crypto.randomUUID().slice(0, 12)}`, sortOrder, isActive },
     });
     await log(adminId, "create", "category", created.id);
   }
@@ -217,7 +234,7 @@ export async function saveCategory(
 
 export async function deleteCategory(id: string) {
   const adminId = await requireAdminId();
-  await db.category.delete({ where: { id } });
-  await log(adminId, "delete", "category", id);
+  const { count } = await db.category.deleteMany({ where: { id: String(id) } });
+  if (count > 0) await log(adminId, "delete", "category", id);
   revalidatePath("/admin/categories");
 }

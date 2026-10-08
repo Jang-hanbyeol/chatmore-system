@@ -26,6 +26,8 @@ async function remoteGenerate(req: ChatRequest): Promise<ChatResponse> {
     },
     body: JSON.stringify(req),
     cache: "no-store",
+    // 서버리스 함수 시간 제한 전에 끊어, 오류 응답을 저장하고 사용자에게 알릴 수 있게 함
+    signal: AbortSignal.timeout(20_000),
   });
   if (!res.ok) throw new Error(`Chat API error: ${res.status}`);
   return (await res.json()) as ChatResponse;

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { safeHttpUrl } from "@/lib/utils/url";
 import { Badge } from "@/components/ui/Badge";
 import { ddayLabel } from "@/lib/utils";
 
@@ -27,9 +28,9 @@ export function InfoCard({
       <div className="mt-3 flex items-center justify-between gap-2">
         <span className="truncate text-xs text-muted">{item.department}</span>
         <div className="flex shrink-0 items-center gap-3">
-          {item.sourceUrl && (
+          {safeHttpUrl(item.sourceUrl) && (
             <a
-              href={item.sourceUrl}
+              href={safeHttpUrl(item.sourceUrl)!}
               target="_blank"
               rel="noreferrer noopener"
               className="text-xs text-body hover:text-ink hover:underline"

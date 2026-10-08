@@ -7,8 +7,11 @@ import { getActiveUserId } from "@/lib/auth/guards";
 import { clearUserSession } from "@/lib/auth/session";
 import { recordFeedback } from "@/lib/ai/feedback-service";
 import {
+  bookmarkSchema,
   feedbackSchema,
   onboardingSchema,
+  personalEventSchema,
+  profileSchema,
   reportSchema,
   settingsSchema,
 } from "@/lib/validation/schemas";
@@ -69,38 +72,31 @@ export async function toggleBookmark(input: {
 }): Promise<{ ok: boolean; bookmarked: boolean }> {
   const userId = await getActiveUserId();
   if (!userId) return { ok: false, bookmarked: false };
-  const existing = await db.bookmark.findUnique({
-    where: {
-      userId_itemType_itemId: {
-        userId,
-        itemType: input.itemType,
-        itemId: input.itemId,
-      },
-    },
-  });
-  if (existing) {
-    await db.bookmark.delete({ where: { id: existing.id } });
-    revalidatePath("/bookmarks");
+  const parsed = bookmarkSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, bookmarked: false };
+  const { itemType, itemId, title, meta } = parsed.data;
+  // deleteMany/create 조합: 연타로 두 요청이 겹쳐도 P2002 대신 최종 상태로 수렴
+  const removed = await db.bookmark.deleteMany({ where: { userId, itemType, itemId } });
+  if (removed.count > 0) {
+    revalidatePath("/", "layout");
     return { ok: true, bookmarked: false };
   }
-  await db.bookmark.create({
-    data: {
-      userId,
-      itemType: input.itemType,
-      itemId: input.itemId,
-      title: input.title.slice(0, 200),
-      meta: input.meta ?? null,
-    },
-  });
-  revalidatePath("/bookmarks");
+  try {
+    await db.bookmark.create({
+      data: { userId, itemType, itemId, title, meta: meta ?? null },
+    });
+  } catch (e) {
+    if ((e as { code?: string }).code !== "P2002") throw e; // 동시 요청이 먼저 만듦
+  }
+  revalidatePath("/", "layout");
   return { ok: true, bookmarked: true };
 }
 
 export async function removeBookmark(id: string) {
   const userId = await getActiveUserId();
   if (!userId) return;
-  await db.bookmark.deleteMany({ where: { id, userId } });
-  revalidatePath("/bookmarks");
+  await db.bookmark.deleteMany({ where: { id: String(id), userId } });
+  revalidatePath("/", "layout");
 }
 
 /* ── 알림 ── */
@@ -109,10 +105,10 @@ export async function markNotificationRead(id: string) {
   const userId = await getActiveUserId();
   if (!userId) return;
   await db.notification.updateMany({
-    where: { id, userId },
+    where: { id: String(id), userId },
     data: { isRead: true },
   });
-  revalidatePath("/notifications");
+  revalidatePath("/", "layout");
 }
 
 export async function markAllNotificationsRead() {
@@ -122,7 +118,7 @@ export async function markAllNotificationsRead() {
     where: { userId, isRead: false },
     data: { isRead: true },
   });
-  revalidatePath("/notifications");
+  revalidatePath("/", "layout");
 }
 
 /* ── 답변 평가 / 오류 신고 ── */
@@ -142,6 +138,7 @@ export async function submitAnswerFeedback(input: {
   });
   if (!msg) return { ok: false, message: "답변을 찾을 수 없습니다." };
   await recordFeedback({ userId, ...parsed.data });
+  revalidatePath("/admin/answers");
   return {
     ok: true,
     message: "의견이 접수되었습니다. 보내주신 내용은 답변 품질 개선에 활용됩니다.",
@@ -165,11 +162,18 @@ export async function submitReport(
     for (const i of parsed.error.issues) fieldErrors[String(i.path[0])] ??= i.message;
     return { ok: false, message: "입력 내용을 확인해 주세요.", fieldErrors };
   }
+  // 본인 대화의 메시지만 연결 (임의 id로 FK 오류·타인 메시지 노출 방지)
+  const ownMessage = parsed.data.messageId
+    ? await db.message.findFirst({
+        where: { id: parsed.data.messageId, conversation: { userId } },
+        select: { id: true },
+      })
+    : null;
   await db.report.create({
     data: {
       userId,
       reportType: parsed.data.reportType,
-      messageId: parsed.data.messageId || null,
+      messageId: ownMessage?.id ?? null,
       content: parsed.data.content,
       contactBack: parsed.data.contactBack,
     },
@@ -211,13 +215,26 @@ export async function updateProfile(
 ): Promise<FormState> {
   const userId = await getActiveUserId();
   if (!userId) redirect("/login");
+  const parsed = profileSchema.safeParse({
+    userType: String(formData.get("userType") ?? "재학생"),
+    college: String(formData.get("college") ?? ""),
+    department: String(formData.get("department") ?? ""),
+    grade: String(formData.get("grade") ?? ""),
+    admissionYear: String(formData.get("admissionYear") ?? ""),
+    interests: formData.getAll("interests").map(String),
+  });
+  if (!parsed.success) return { ok: false, message: "입력 내용을 확인해 주세요." };
+  const d = parsed.data;
   await db.user.update({
     where: { id: userId },
     data: {
-      userType: String(formData.get("userType") ?? "재학생"),
-      department: String(formData.get("department") ?? "") || null,
-      grade: String(formData.get("grade") ?? "") || null,
-      interests: formData.getAll("interests").map(String).join(","),
+      userType: d.userType,
+      department: d.department || null,
+      grade: d.grade || null,
+      interests: d.interests.join(","),
+      // 프로필 폼에 없는 항목은 기존 값 유지
+      ...(formData.has("college") ? { college: d.college || null } : {}),
+      ...(formData.has("admissionYear") ? { admissionYear: d.admissionYear || null } : {}),
     },
   });
   revalidatePath("/settings");
@@ -229,7 +246,7 @@ export async function deleteChatHistory(): Promise<FormState> {
   const userId = await getActiveUserId();
   if (!userId) return { ok: false, message: "로그인이 필요합니다." };
   await db.conversation.deleteMany({ where: { userId } });
-  revalidatePath("/history");
+  revalidatePath("/", "layout");
   return { ok: true, message: "대화 기록이 모두 삭제되었습니다." };
 }
 
@@ -263,12 +280,17 @@ export async function addPersonalEvent(
 ): Promise<FormState> {
   const userId = await getActiveUserId();
   if (!userId) return { ok: false, message: "로그인이 필요합니다." };
-  const title = String(formData.get("title") ?? "").trim();
-  const date = String(formData.get("date") ?? "");
-  if (!title || !date) return { ok: false, message: "제목과 날짜를 입력해 주세요." };
+  const parsed = personalEventSchema.safeParse({
+    title: String(formData.get("title") ?? ""),
+    date: String(formData.get("date") ?? ""),
+  });
+  if (!parsed.success) return { ok: false, message: "제목과 올바른 날짜를 입력해 주세요." };
+  const { title, date } = parsed.data;
+  const count = await db.scheduleEvent.count({ where: { userId } });
+  if (count >= 200) return { ok: false, message: "개인 일정은 최대 200개까지 등록할 수 있습니다." };
   await db.scheduleEvent.create({
     data: {
-      title: title.slice(0, 100),
+      title,
       category: "개인",
       startAt: new Date(`${date}T09:00:00+09:00`),
       userId,
@@ -281,6 +303,6 @@ export async function addPersonalEvent(
 export async function deletePersonalEvent(id: string) {
   const userId = await getActiveUserId();
   if (!userId) return;
-  await db.scheduleEvent.deleteMany({ where: { id, userId } });
+  await db.scheduleEvent.deleteMany({ where: { id: String(id), userId } });
   revalidatePath("/calendar");
 }

@@ -6,7 +6,7 @@ import { db } from "@/lib/database/db";
 import { rateLimit } from "@/lib/auth/rate-limit";
 import { getActiveUserId } from "@/lib/auth/guards";
 import { generateAnswer } from "@/lib/ai/chat-service";
-import { chatMessageSchema } from "@/lib/validation/schemas";
+import { chatMessageSchema, conversationTitleSchema } from "@/lib/validation/schemas";
 import { truncate } from "@/lib/utils";
 import type { ChatResponse } from "@/types/chat";
 
@@ -106,8 +106,9 @@ export async function sendChatMessage(input: {
       },
     });
 
-    // 히스토리 저장 미사용 사용자는 저장 직후 삭제하지 않고, 조회 시 필터
-    revalidatePath("/history");
+    // revalidatePath 를 부르지 않는다: 액션 응답에 현재 페이지(/chat?q=…) 재렌더가 실려
+    // 채팅 화면이 다시 마운트되며 초기 질문을 한 번 더 보냈다. 목록 갱신은 클라이언트가
+    // router.replace/refresh 로 처리한다.
     return {
       ok: true,
       conversationId,
@@ -116,7 +117,7 @@ export async function sendChatMessage(input: {
       response: { ...response, conversationId, answerId: assistant.id },
     };
   } catch (e) {
-    console.error("chat generate error");
+    console.error("chat generate error", e);
     await db.message.create({
       data: {
         conversationId,
@@ -126,6 +127,10 @@ export async function sendChatMessage(input: {
         status: "error",
       },
     });
+    await db.conversation.update({
+      where: { id: conversationId },
+      data: { updatedAt: new Date() },
+    });
     return { ok: false, error: "답변 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요." };
   }
 }
@@ -133,31 +138,34 @@ export async function sendChatMessage(input: {
 export async function renameConversation(id: string, title: string) {
   const userId = await getActiveUserId();
   if (!userId) return;
+  const parsed = conversationTitleSchema.safeParse(title);
   await db.conversation.updateMany({
-    where: { id, userId },
-    data: { title: title.trim().slice(0, 50) || "새 대화" },
+    where: { id: String(id), userId },
+    data: { title: parsed.success ? parsed.data.slice(0, 50) : "새 대화" },
   });
   revalidatePath("/history");
+  revalidatePath("/chat", "layout");
 }
 
 export async function toggleConversationBookmark(id: string) {
   const userId = await getActiveUserId();
   if (!userId) return;
-  const conv = await db.conversation.findFirst({ where: { id, userId } });
+  const conv = await db.conversation.findFirst({ where: { id: String(id), userId } });
   if (!conv) return;
   await db.conversation.update({
-    where: { id },
+    where: { id: conv.id },
     data: { isBookmarked: !conv.isBookmarked },
   });
   revalidatePath("/history");
+  revalidatePath("/chat", "layout");
 }
 
 export async function deleteConversation(id: string) {
   const userId = await getActiveUserId();
   if (!userId) return;
-  await db.conversation.deleteMany({ where: { id, userId } });
+  await db.conversation.deleteMany({ where: { id: String(id), userId } });
   revalidatePath("/history");
-  revalidatePath("/chat");
+  revalidatePath("/chat", "layout");
 }
 
 export async function deleteAllConversations() {
@@ -165,5 +173,5 @@ export async function deleteAllConversations() {
   if (!userId) return;
   await db.conversation.deleteMany({ where: { userId } });
   revalidatePath("/history");
-  revalidatePath("/chat");
+  revalidatePath("/chat", "layout");
 }

@@ -105,23 +105,25 @@ export function TrendBars({
         })}
       </svg>
       <figcaption className="sr-only">{title}</figcaption>
-      <table className="sr-only">
-        <caption>{title}</caption>
-        <thead>
-          <tr>
-            <th scope="col">구분</th>
-            <th scope="col">건수</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((d) => (
-            <tr key={d.label}>
-              <th scope="row">{d.label}</th>
-              <td>{d.value}</td>
+      <div className="sr-only">
+        <table>
+          <caption>{title}</caption>
+          <thead>
+            <tr>
+              <th scope="col">구분</th>
+              <th scope="col">건수</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((d) => (
+              <tr key={d.label}>
+                <th scope="row">{d.label}</th>
+                <td>{d.value}</td>
+              </tr>
+            ))}
+          </tbody>
+          </table>
+      </div>
     </figure>
   );
 }
@@ -158,23 +160,25 @@ export function HBars({
         ))}
       </ul>
       <figcaption className="sr-only">{title}</figcaption>
-      <table className="sr-only">
-        <caption>{title}</caption>
-        <thead>
-          <tr>
-            <th scope="col">구분</th>
-            <th scope="col">{unit}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((d) => (
-            <tr key={d.label}>
-              <th scope="row">{d.label}</th>
-              <td>{d.value}</td>
+      <div className="sr-only">
+        <table>
+          <caption>{title}</caption>
+          <thead>
+            <tr>
+              <th scope="col">구분</th>
+              <th scope="col">{unit}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((d) => (
+              <tr key={d.label}>
+                <th scope="row">{d.label}</th>
+                <td>{d.value}</td>
+              </tr>
+            ))}
+          </tbody>
+          </table>
+      </div>
     </figure>
   );
 }

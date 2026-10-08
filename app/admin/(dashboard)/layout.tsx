@@ -46,8 +46,8 @@ export default async function AdminLayout({
 
   return (
     <div className="flex min-h-dvh bg-canvas">
-      {/* 화면 높이로 고정: 본문이 길어도 사이드바(하단 프로필 포함)는 제자리, 본문만 스크롤 */}
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col self-start border-r border-hairline bg-surface lg:flex">
+      {/* 화면에 고정: 본문 길이·넘침과 무관하게 사이드바(하단 프로필 포함)는 제자리, 본문만 스크롤 */}
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-hairline bg-surface lg:flex">
         <div className="flex h-16 items-center gap-2 border-b border-hairline-soft px-5">
           <Logo variant="symbol" height={28} />
           <span className="font-semibold text-ink">Chatmore</span>
@@ -89,7 +89,7 @@ export default async function AdminLayout({
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col lg:pl-60">
         <div className="flex h-14 items-center justify-between border-b border-hairline bg-surface px-4 lg:hidden">
           <div className="flex items-center gap-2">
             <Logo variant="symbol" height={24} />

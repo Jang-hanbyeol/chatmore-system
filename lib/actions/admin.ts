@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/database/db";
-import { getSessionAdminId } from "@/lib/auth/session";
+import { getActiveAdmin } from "@/lib/auth/guards";
 import {
   DATA_STATUSES,
   FEEDBACK_STATUSES,
@@ -12,10 +12,11 @@ import {
 } from "@/lib/validation/schemas";
 import type { FormState } from "./auth";
 
+/** 서명만이 아니라 DB에 존재하는 관리자인지까지 확인 (삭제된 관리자 쿠키 차단) */
 async function requireAdminId(): Promise<string> {
-  const adminId = getSessionAdminId();
-  if (!adminId) redirect("/admin/login");
-  return adminId;
+  const admin = await getActiveAdmin();
+  if (!admin) redirect("/admin/login");
+  return admin.id;
 }
 
 async function log(

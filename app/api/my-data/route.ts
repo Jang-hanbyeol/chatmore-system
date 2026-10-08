@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/database/db";
-import { getSessionUserId } from "@/lib/auth/session";
+import { getActiveUserId } from "@/lib/auth/guards";
 
 export const dynamic = "force-dynamic";
 
 /** 내 데이터 다운로드 (개인정보 이동권 대응 — JSON) */
 export async function GET() {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }

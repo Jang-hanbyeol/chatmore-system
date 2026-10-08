@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/database/db";
 import { rateLimit } from "@/lib/auth/rate-limit";
-import { getSessionUserId } from "@/lib/auth/session";
+import { getActiveUserId } from "@/lib/auth/guards";
 import { generateAnswer } from "@/lib/ai/chat-service";
 import { chatMessageSchema } from "@/lib/validation/schemas";
 import { truncate } from "@/lib/utils";
@@ -37,7 +37,7 @@ export async function sendChatMessage(input: {
   conversationId?: string;
   message: string;
 }): Promise<SendResult> {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return { ok: false, error: "로그인이 필요합니다." };
 
   const rl = rateLimit(`chat:${userId}`, 30, 60 * 1000);
@@ -131,7 +131,7 @@ export async function sendChatMessage(input: {
 }
 
 export async function renameConversation(id: string, title: string) {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return;
   await db.conversation.updateMany({
     where: { id, userId },
@@ -141,7 +141,7 @@ export async function renameConversation(id: string, title: string) {
 }
 
 export async function toggleConversationBookmark(id: string) {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return;
   const conv = await db.conversation.findFirst({ where: { id, userId } });
   if (!conv) return;
@@ -153,7 +153,7 @@ export async function toggleConversationBookmark(id: string) {
 }
 
 export async function deleteConversation(id: string) {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return;
   await db.conversation.deleteMany({ where: { id, userId } });
   revalidatePath("/history");
@@ -161,7 +161,7 @@ export async function deleteConversation(id: string) {
 }
 
 export async function deleteAllConversations() {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return;
   await db.conversation.deleteMany({ where: { userId } });
   revalidatePath("/history");

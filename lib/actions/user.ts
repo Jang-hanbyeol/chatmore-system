@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/database/db";
-import { getSessionUserId } from "@/lib/auth/session";
+import { getActiveUserId } from "@/lib/auth/guards";
+import { clearUserSession } from "@/lib/auth/session";
 import { recordFeedback } from "@/lib/ai/feedback-service";
 import {
   feedbackSchema,
@@ -19,7 +20,7 @@ export async function saveOnboarding(
   _prev: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) redirect("/login");
   const parsed = onboardingSchema.safeParse({
     userType: String(formData.get("userType") ?? ""),
@@ -66,7 +67,7 @@ export async function toggleBookmark(input: {
   title: string;
   meta?: string;
 }): Promise<{ ok: boolean; bookmarked: boolean }> {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return { ok: false, bookmarked: false };
   const existing = await db.bookmark.findUnique({
     where: {
@@ -96,7 +97,7 @@ export async function toggleBookmark(input: {
 }
 
 export async function removeBookmark(id: string) {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return;
   await db.bookmark.deleteMany({ where: { id, userId } });
   revalidatePath("/bookmarks");
@@ -105,7 +106,7 @@ export async function removeBookmark(id: string) {
 /* ── 알림 ── */
 
 export async function markNotificationRead(id: string) {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return;
   await db.notification.updateMany({
     where: { id, userId },
@@ -115,7 +116,7 @@ export async function markNotificationRead(id: string) {
 }
 
 export async function markAllNotificationsRead() {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return;
   await db.notification.updateMany({
     where: { userId, isRead: false },
@@ -132,7 +133,7 @@ export async function submitAnswerFeedback(input: {
   reason?: string;
   comment?: string;
 }): Promise<{ ok: boolean; message: string }> {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return { ok: false, message: "로그인이 필요합니다." };
   const parsed = feedbackSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: "입력을 확인해 주세요." };
@@ -151,7 +152,7 @@ export async function submitReport(
   _prev: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return { ok: false, message: "로그인이 필요합니다." };
   const parsed = reportSchema.safeParse({
     reportType: String(formData.get("reportType") ?? ""),
@@ -185,7 +186,7 @@ export async function saveSettings(
   _prev: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) redirect("/login");
   const parsed = settingsSchema.safeParse({
     answerLength: String(formData.get("answerLength") ?? "detailed"),
@@ -208,7 +209,7 @@ export async function updateProfile(
   _prev: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) redirect("/login");
   await db.user.update({
     where: { id: userId },
@@ -225,7 +226,7 @@ export async function updateProfile(
 
 /** 대화 기록 전체 삭제 (개인정보 설정) */
 export async function deleteChatHistory(): Promise<FormState> {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return { ok: false, message: "로그인이 필요합니다." };
   await db.conversation.deleteMany({ where: { userId } });
   revalidatePath("/history");
@@ -234,7 +235,7 @@ export async function deleteChatHistory(): Promise<FormState> {
 
 /** 회원 탈퇴 — 데모 계정은 보호 */
 export async function withdrawAccount(): Promise<FormState> {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return { ok: false, message: "로그인이 필요합니다." };
   const user = await db.user.findUnique({ where: { id: userId } });
   if (!user) return { ok: false, message: "사용자를 찾을 수 없습니다." };
@@ -244,10 +245,13 @@ export async function withdrawAccount(): Promise<FormState> {
       message: "데모 계정은 탈퇴할 수 없습니다. 정식 서비스에서는 즉시 탈퇴와 데이터 삭제가 지원됩니다.",
     };
   }
-  await db.user.update({
-    where: { id: userId },
-    data: { status: "deleted", email: `deleted-${userId}@removed.local` },
-  });
+  // 개인정보 즉시 삭제: 대화·메시지·피드백·신고·북마크·알림은 FK Cascade,
+  // 개인 일정은 관계가 없는 userId 컬럼이라 직접 삭제
+  await db.$transaction([
+    db.scheduleEvent.deleteMany({ where: { userId } }),
+    db.user.delete({ where: { id: userId } }),
+  ]);
+  clearUserSession();
   redirect("/login");
 }
 
@@ -257,7 +261,7 @@ export async function addPersonalEvent(
   _prev: FormState,
   formData: FormData
 ): Promise<FormState> {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return { ok: false, message: "로그인이 필요합니다." };
   const title = String(formData.get("title") ?? "").trim();
   const date = String(formData.get("date") ?? "");
@@ -275,7 +279,7 @@ export async function addPersonalEvent(
 }
 
 export async function deletePersonalEvent(id: string) {
-  const userId = getSessionUserId();
+  const userId = await getActiveUserId();
   if (!userId) return;
   await db.scheduleEvent.deleteMany({ where: { id, userId } });
   revalidatePath("/calendar");

@@ -245,8 +245,8 @@ npm run build && npm run start
 Vercel 배포 (현재 구성):
 1. DB: Vercel 마켓플레이스 Turso(libSQL) 연동 — `TURSO_DATABASE_URL`,
    `TURSO_AUTH_TOKEN` 이 자동 등록되면 원격 DB를 사용합니다
-   (접속 규칙: `lib/database/connection.ts`). 원격 DB가 없으면 빌드 시 만든
-   SQLite 파일을 인스턴스별 `/tmp` 로 복사해 쓰므로 데이터가 공유·보존되지 않습니다.
+   (접속 규칙: `lib/database/connection.ts`). Vercel 에서 원격 DB 설정이 없으면
+   인스턴스마다 데이터가 갈라지므로 파일 DB로 대체하지 않고 오류로 중단합니다.
 2. 빌드: `vercel-build` 스크립트가 테이블 생성 + 시드(중복 없음) 후 `next build`
 3. 환경변수 등록: `SESSION_SECRET`(필수), `ADMIN_*`
 4. Rate Limit 을 Redis 기반으로 교체 (다중 인스턴스 대응)

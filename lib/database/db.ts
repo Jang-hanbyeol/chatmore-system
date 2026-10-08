@@ -11,7 +11,7 @@ const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 function createClient() {
   const adapter = new PrismaLibSql(
-    libsqlConfig(path.join(process.cwd(), "prisma"), { copyToTmpOnVercel: true })
+    libsqlConfig(path.join(process.cwd(), "prisma"))
   );
   return new PrismaClient({ adapter });
 }

@@ -6,12 +6,10 @@ import { fileURLToPath } from "node:url";
 import bcrypt from "bcryptjs";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "../lib/generated/prisma/client";
+import { libsqlConfig } from "../lib/database/connection";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const raw = process.env.DATABASE_URL || "file:./dev.db";
-const filePath = raw.replace(/^file:/, "");
-const abs = path.isAbsolute(filePath) ? filePath : path.join(here, filePath);
-const adapter = new PrismaLibSql({ url: `file:${abs}` });
+const adapter = new PrismaLibSql(libsqlConfig(here));
 const prisma = new PrismaClient({ adapter });
 
 const D = (s: string) => new Date(`${s}T09:00:00+09:00`);

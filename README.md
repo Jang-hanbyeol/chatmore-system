@@ -242,12 +242,14 @@ RAG 출처 데이터 연동: 서버 측 벡터 DB를 사용할 경우에도 관�
 npm run build && npm run start
 ```
 
-Vercel 등 서버리스 배포 시:
-1. SQLite → 호스팅 DB 전환 (Supabase PostgreSQL 권장):
-   `schema.prisma` 의 provider 를 `postgresql` 로, 어댑터를
-   `@prisma/adapter-pg` 로 교체 (`lib/database/db.ts`, `prisma/seed.ts` 두 곳)
-2. 환경변수 등록: `DATABASE_URL`, `SESSION_SECRET`, `ADMIN_*`
-3. Rate Limit 을 Redis 기반으로 교체 (다중 인스턴스 대응)
+Vercel 배포 (현재 구성):
+1. DB: Vercel 마켓플레이스 Turso(libSQL) 연동 — `TURSO_DATABASE_URL`,
+   `TURSO_AUTH_TOKEN` 이 자동 등록되면 원격 DB를 사용합니다
+   (접속 규칙: `lib/database/connection.ts`). 원격 DB가 없으면 빌드 시 만든
+   SQLite 파일을 인스턴스별 `/tmp` 로 복사해 쓰므로 데이터가 공유·보존되지 않습니다.
+2. 빌드: `vercel-build` 스크립트가 테이블 생성 + 시드(중복 없음) 후 `next build`
+3. 환경변수 등록: `SESSION_SECRET`(필수), `ADMIN_*`
+4. Rate Limit 을 Redis 기반으로 교체 (다중 인스턴스 대응)
 
 ## 13. 디자인 MD 적용 방법
 

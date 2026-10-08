@@ -8,15 +8,11 @@ import "dotenv/config";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@libsql/client";
+import { libsqlConfig } from "../lib/database/connection";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const raw = process.env.DATABASE_URL || "file:./dev.db";
-const filePath = raw.replace(/^file:/, "");
-const abs = path.isAbsolute(filePath)
-  ? filePath
-  : path.join(here, "..", "prisma", filePath);
-
-const db = createClient({ url: `file:${abs}` });
+const config = libsqlConfig(path.join(here, "..", "prisma"));
+const db = createClient(config);
 
 const S = [
   `CREATE TABLE IF NOT EXISTS "User" (
@@ -193,7 +189,7 @@ const S = [
 
 async function main() {
   for (const sql of S) await db.execute(sql);
-  console.log(`SQLite 테이블 생성 완료: ${abs}`);
+  console.log(`테이블 생성 완료: ${config.url}`);
   db.close();
 }
 
